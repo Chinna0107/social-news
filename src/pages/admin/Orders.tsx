@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Package, Search, Filter, AlertCircle, Loader2, CheckCircle2, Truck, XCircle, ChevronDown } from "lucide-react";
+import { Package, Filter, Loader2 } from "lucide-react";
 import { apiRequest } from "@/contexts/AuthContext";
 
 interface OrderItem {

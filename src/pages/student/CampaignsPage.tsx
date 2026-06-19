@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { studentApi } from "@/utils/api";
-import { Users, Megaphone, Target, CheckCircle2, Loader2, HeartHandshake, X, IndianRupee, Calendar } from "lucide-react";
+import { Megaphone, Target, CheckCircle2, Loader2, HeartHandshake, X, IndianRupee, Calendar } from "lucide-react";
 import { apiRequest, API_BASE_URL } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 

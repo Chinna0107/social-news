@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { studentApi } from "@/utils/api";
 import { useCart } from "@/contexts/CartContext";
-import { ShoppingCart, Plus, Minus, Check, Search, Filter } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Check, Search } from "lucide-react";
 
 interface Product {
   _id: string;
