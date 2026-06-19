@@ -26,7 +26,7 @@ interface Stats {
 
 const FORMATS = ["auto", "rectangle", "horizontal", "vertical", "in-article", "in-feed"];
 const POSITIONS = ["sidebar", "header", "footer", "inline", "popup"];
-const API = "http://localhost:5000/api/adsense";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/adsense";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 

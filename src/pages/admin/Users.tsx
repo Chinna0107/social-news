@@ -14,7 +14,7 @@ interface User {
 }
 
 const ROLES = ["student", "user", "civic_leader", "volunteer", "moderator", "admin"];
-const API = "http://localhost:5000/api/admin/users";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/users";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 

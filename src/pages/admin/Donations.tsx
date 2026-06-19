@@ -23,7 +23,7 @@ interface Stats {
   unique_donors: string;
 }
 
-const API = "http://localhost:5000/api/donations";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/donations";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 

@@ -113,7 +113,7 @@ export default function TasksPage() {
         const form = new FormData();
         form.append("file", imageFile);
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/media/upload", {
+        const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/media/upload", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: form,

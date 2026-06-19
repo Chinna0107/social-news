@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Plus, Pencil, Trash2, X, ClipboardList, Clock, Award, Upload, Image, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = "http://localhost:5000/api/admin/tasks";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/tasks";
 const token = () => localStorage.getItem("token");
 const authHeaders = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
@@ -11,7 +11,7 @@ const PRIORITIES = ["Low", "Medium", "High"];
 const uploadImage = async (file: File): Promise<string> => {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch("http://localhost:5000/api/media/upload", {
+  const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/media/upload", {
     method: "POST",
     headers: { Authorization: `Bearer ${token()}` },
     body: form,

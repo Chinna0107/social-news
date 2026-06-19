@@ -15,8 +15,8 @@ interface Campaign {
 }
 
 const STATUS_OPTIONS = ["active", "inactive", "completed"];
-const API = "http://localhost:5000/api/admin/campaigns";
-const UPLOAD_URL = "http://localhost:5000/api/media/upload";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/campaigns";
+const UPLOAD_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/media/upload";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 const emptyForm = { title: "", description: "", image: "", goal: "", tag: "", status: "active" };

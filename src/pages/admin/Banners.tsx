@@ -12,7 +12,7 @@ interface Banner {
 }
 
 const POSITIONS = ["header", "sidebar", "footer", "popup", "inline"];
-const API = "http://localhost:5000/api/banners";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/banners";
 const token = () => localStorage.getItem("token");
 
 const empty = { title: "", image: "", link: "", position: "header" };

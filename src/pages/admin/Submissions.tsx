@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Eye, X, Download, Paperclip, BookOpen, ClipboardList, Award } from "lucide-react";
 
-const BASE = "http://localhost:5000/api/admin";
+const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
@@ -312,7 +312,7 @@ export default function AdminSubmissions() {
                       </p>
                       <div className="space-y-2">
                         {files.map((f: any, i: number) => (
-                          <a key={i} href={typeof f === 'string' ? `http://localhost:5000/${f}` : (f.url || f)} target="_blank" rel="noreferrer"
+                          <a key={i} href={typeof f === 'string' ? `${(import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000')}/${f}` : (f.url || f)} target="_blank" rel="noreferrer"
                             className="flex items-center gap-2 p-3 bg-slate-50 border rounded-xl hover:bg-slate-100 transition-colors text-sm font-medium text-secondary">
                             <Download className="w-4 h-4" /> {typeof f === 'string' ? f.split('/').pop() : (f.name || `File ${i + 1}`)}
                           </a>

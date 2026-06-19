@@ -16,7 +16,7 @@ import CountUpImport from "react-countup";
 // Handle Vite CJS interop issue for react-countup
 const CountUp = (CountUpImport as any).default || CountUpImport;
 
-const API_BASE = "http://localhost:5000/api/admin";
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 

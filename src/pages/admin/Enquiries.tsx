@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MessageSquare, CheckCircle, X, Search, Trash2, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = "http://localhost:5000/api/admin/enquiries";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/enquiries";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 

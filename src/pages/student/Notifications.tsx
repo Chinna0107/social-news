@@ -30,7 +30,7 @@ export default function Notifications() {
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/student/notifications", {
+        const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/student/notifications", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -51,7 +51,7 @@ export default function Notifications() {
   const markAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/student/notifications/${id}/read`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api')}/student/notifications/${id}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`

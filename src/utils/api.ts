@@ -16,7 +16,7 @@ export const studentApi = {
   progress:     () => apiRequest("/student/progress"),
   submitTask: (id: string, formData: FormData) => {
     const token = localStorage.getItem("token");
-    return fetch(`http://localhost:5000/api/student/tasks/${id}/submit`, {
+    return fetch(`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api')}/student/tasks/${id}/submit`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,

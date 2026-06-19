@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Users, DollarSign, CheckSquare, MessageSquare, BarChart2, Activity } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
-const API = "http://localhost:5000/api/reports";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/reports";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ Authorization: `Bearer ${token()}` });
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Package, Plus, Pencil, Trash2, X, Tag, DollarSign, Archive, Store } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = "http://localhost:5000/api/admin/marketplace";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/marketplace";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
