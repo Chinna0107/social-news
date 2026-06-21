@@ -6,9 +6,10 @@ import { ShoppingCart } from "lucide-react";
 
 interface Product {
   _id: string;
+  id?: string;
   name: string;
   description: string;
-  price: number;
+  price: number | string;
   image: string;
 }
 
@@ -46,7 +47,7 @@ export default function MarketplacePage() {
         ) : (
           <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product) => (
-              <div key={product._id} className="bg-white rounded-2xl border shadow-sm overflow-hidden group hover:shadow-lg transition-all">
+              <div key={product._id || product.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden group hover:shadow-lg transition-all">
                 <div className="h-64 relative overflow-hidden bg-slate-100">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-secondary text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
@@ -57,7 +58,7 @@ export default function MarketplacePage() {
                   <h3 className="font-bold text-xl mb-2 group-hover:text-destructive transition-colors">{product.name}</h3>
                   <p className="text-sm text-muted-foreground mb-6 line-clamp-2">{product.description}</p>
                   <div className="flex justify-between items-center pt-4 border-t">
-                    <span className="font-extrabold text-2xl text-secondary">${product.price.toFixed(2)}</span>
+                    <span className="font-extrabold text-2xl text-secondary">${parseFloat(String(product.price)).toFixed(2)}</span>
                     <button className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-destructive transition-colors font-semibold text-sm flex items-center gap-2">
                       <ShoppingCart className="w-4 h-4" />
                       Buy

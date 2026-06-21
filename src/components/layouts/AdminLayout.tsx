@@ -16,7 +16,8 @@ import {
   MessageSquare,
   ClipboardList,
   SendHorizonal,
-  Package
+  Package,
+  Newspaper
 } from "lucide-react";
 
 export function AdminLayout() {
@@ -34,6 +35,7 @@ export function AdminLayout() {
     { icon: SendHorizonal, label: "Submissions", path: "/admin/submissions" },
     { icon: HeartHandshake, label: "Donation Tracking", path: "/admin/donations" },
     { icon: MessageSquare, label: "Enquiries", path: "/admin/enquiries" },
+    { icon: Newspaper, label: "News Management", path: "/admin/news" },
     { icon: Settings, label: "CMS", path: "/admin/content" },
   ];
 

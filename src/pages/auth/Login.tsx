@@ -329,9 +329,9 @@ export default function Login() {
           <div className="mt-auto pt-12 text-center">
             <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-3">Secured by Enterprise Protocol 4.0</p>
             <div className="flex justify-center gap-4 text-[11px] font-medium text-foreground/60">
-              <a href="#" className="hover:text-secondary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-secondary transition-colors">Terms of Information</a>
-              <a href="#" className="hover:text-secondary transition-colors">Help Center</a>
+              <Link to="/privacy" className="hover:text-secondary transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-secondary transition-colors">Terms of Information</Link>
+              <Link to="#" className="hover:text-secondary transition-colors">Help Center</Link>
             </div>
           </div>
 

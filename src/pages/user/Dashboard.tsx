@@ -56,10 +56,15 @@ export default function UserDashboard() {
 
       <motion.div variants={fadeUp} className="bg-white rounded-2xl border shadow-sm p-6">
         <h3 className="font-bold text-secondary mb-2">Your Account</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
           <div><p className="text-muted-foreground">Name</p><p className="font-semibold">{user?.name}</p></div>
           <div><p className="text-muted-foreground">Email</p><p className="font-semibold">{user?.email}</p></div>
           <div><p className="text-muted-foreground">Member ID</p><p className="font-semibold font-mono">{user?.student_id || "—"}</p></div>
+          
+          {(user as any)?.age && <div><p className="text-muted-foreground">Age</p><p className="font-semibold capitalize">{(user as any)?.age}</p></div>}
+          {(user as any)?.gender && <div><p className="text-muted-foreground">Gender</p><p className="font-semibold capitalize">{(user as any)?.gender}</p></div>}
+          {(user as any)?.college && <div className="sm:col-span-2 lg:col-span-1"><p className="text-muted-foreground">College</p><p className="font-semibold">{(user as any)?.college}</p></div>}
+          {(user as any)?.address && <div className="sm:col-span-2 lg:col-span-3"><p className="text-muted-foreground">Address</p><p className="font-semibold">{(user as any)?.address}</p></div>}
         </div>
       </motion.div>
     </motion.div>

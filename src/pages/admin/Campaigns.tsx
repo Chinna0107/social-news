@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Plus, Pencil, Trash2, X, Image, Upload, Loader2, Megaphone } from "lucide-react";
-import { motion } from "framer-motion";
+import { Plus, Pencil, Trash2, X, Image, Upload, Loader2, Megaphone, Users, Download } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 interface Campaign {
   id: string;
@@ -9,9 +12,19 @@ interface Campaign {
   image: string;
   goal: number;
   collected: number;
+  entry_fee?: number;
   tag: string;
   status: string;
   created_at: string;
+}
+
+interface Participant {
+  joined_at: string;
+  id: string;
+  name: string;
+  email: string;
+  student_id: string;
+  phone: string;
 }
 
 const STATUS_OPTIONS = ["active", "inactive", "completed"];
@@ -19,7 +32,7 @@ const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/ad
 const UPLOAD_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/media/upload";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
-const emptyForm = { title: "", description: "", image: "", goal: "", tag: "", status: "active" };
+const emptyForm = { title: "", description: "", image: "", goal: "", entry_fee: "", tag: "", status: "active" };
 
 async function uploadToCloudinary(file: File): Promise<string> {
   const form = new FormData();
@@ -46,6 +59,10 @@ export default function AdminCampaigns() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [viewingCampaign, setViewingCampaign] = useState<Campaign | null>(null);
+  const [participantsLoading, setParticipantsLoading] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -82,7 +99,7 @@ export default function AdminCampaigns() {
     await fetch(url, {
       method,
       headers: headers(),
-      body: JSON.stringify({ ...form, goal: parseFloat(form.goal as string) }),
+      body: JSON.stringify({ ...form, goal: parseFloat(form.goal as string), entry_fee: parseFloat(form.entry_fee as string) || 0 }),
     });
     setForm(emptyForm);
     setEditId(null);
@@ -92,7 +109,7 @@ export default function AdminCampaigns() {
   };
 
   const edit = (c: Campaign) => {
-    setForm({ title: c.title, description: c.description || "", image: c.image || "", goal: String(c.goal), tag: c.tag || "", status: c.status });
+    setForm({ title: c.title, description: c.description || "", image: c.image || "", goal: String(c.goal), entry_fee: String(c.entry_fee || 0), tag: c.tag || "", status: c.status });
     setEditId(c.id);
     setShowForm(true);
   };
@@ -101,6 +118,47 @@ export default function AdminCampaigns() {
     if (!confirm("Delete this campaign?")) return;
     await fetch(`${API}/${id}`, { method: "DELETE", headers: headers() });
     load();
+  };
+
+  const viewParticipants = async (c: Campaign) => {
+    setViewingCampaign(c);
+    setParticipantsLoading(true);
+    try {
+      const res = await fetch(`${API}/${c.id}/participants`, { headers: headers() });
+      if (res.ok) {
+        setParticipants(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setParticipantsLoading(false);
+    }
+  };
+
+  const exportParticipantsPDF = () => {
+    if (!viewingCampaign || participants.length === 0) return;
+    const doc = new jsPDF();
+    doc.text(`Participants: ${viewingCampaign.title}`, 14, 15);
+    const tableColumn = ["Name", "Email", "Phone", "Student ID", "Joined At"];
+    const tableRows = participants.map(p => [
+      p.name, p.email, p.phone || "-", p.student_id || "-", new Date(p.joined_at).toLocaleDateString()
+    ]);
+    autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
+    doc.save(`participants_${viewingCampaign.id}.pdf`);
+  };
+
+  const exportParticipantsExcel = () => {
+    if (!viewingCampaign || participants.length === 0) return;
+    const worksheet = XLSX.utils.json_to_sheet(participants.map(p => ({
+      Name: p.name,
+      Email: p.email,
+      Phone: p.phone || "",
+      "Student ID": p.student_id || "",
+      "Joined At": new Date(p.joined_at).toLocaleDateString()
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Participants");
+    XLSX.writeFile(workbook, `participants_${viewingCampaign.id}.xlsx`);
   };
 
   return (
@@ -179,6 +237,11 @@ export default function AdminCampaigns() {
                     placeholder="100000" className="w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-secondary/20" />
                 </div>
                 <div className="space-y-1">
+                  <label className="text-[10px] font-black text-foreground/50 uppercase tracking-widest">Entry Fee (₹)</label>
+                  <input type="number" min="0" step="0.01" value={form.entry_fee} onChange={e => setForm(f => ({ ...f, entry_fee: e.target.value }))}
+                    placeholder="0 for free" className="w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-secondary/20" />
+                </div>
+                <div className="space-y-1">
                   <label className="text-[10px] font-black text-foreground/50 uppercase tracking-widest">Tag</label>
                   <input value={form.tag} onChange={e => setForm(f => ({ ...f, tag: e.target.value }))}
                     placeholder="e.g. Environment, Education" className="w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-secondary/20" />
@@ -215,6 +278,74 @@ export default function AdminCampaigns() {
           </motion.div>
         </div>
       )}
+
+      {/* Participants Modal */}
+      <AnimatePresence>
+        {viewingCampaign && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden"
+            >
+              <div className="p-5 flex justify-between items-center border-b bg-slate-50">
+                <div>
+                  <h2 className="text-lg font-bold text-secondary">Participants</h2>
+                  <p className="text-xs text-muted-foreground">{viewingCampaign.title}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={exportParticipantsPDF} className="flex items-center gap-1.5 bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors">
+                    <Download className="w-3 h-3" /> PDF
+                  </button>
+                  <button onClick={exportParticipantsExcel} className="flex items-center gap-1.5 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-green-100 transition-colors">
+                    <Download className="w-3 h-3" /> Excel
+                  </button>
+                  <button onClick={() => setViewingCampaign(null)} className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors ml-2">
+                    <X className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-0">
+                {participantsLoading ? (
+                  <div className="flex justify-center p-10"><Loader2 className="w-6 h-6 animate-spin text-secondary" /></div>
+                ) : participants.length === 0 ? (
+                  <div className="p-10 text-center text-muted-foreground">
+                    <Users className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                    <p>No participants yet.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-sm text-left">
+                    <thead className="bg-slate-50 sticky top-0 text-xs text-foreground/60">
+                      <tr>
+                        <th className="px-6 py-3 font-semibold">Name</th>
+                        <th className="px-6 py-3 font-semibold">Contact</th>
+                        <th className="px-6 py-3 font-semibold">Student ID</th>
+                        <th className="px-6 py-3 font-semibold">Joined At</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {participants.map(p => (
+                        <tr key={p.id} className="hover:bg-slate-50">
+                          <td className="px-6 py-4 font-medium">{p.name}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col">
+                              <span>{p.email}</span>
+                              <span className="text-xs text-muted-foreground">{p.phone || '-'}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-xs font-mono">{p.student_id || '-'}</td>
+                          <td className="px-6 py-4 text-xs text-muted-foreground">{new Date(p.joined_at).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 flex-wrap">
@@ -270,7 +401,7 @@ export default function AdminCampaigns() {
                   {/* Progress */}
                   <div>
                     <div className="flex justify-between text-[10px] font-bold text-foreground/50 mb-1">
-                      <span>₹{parseFloat(String(c.collected || 0)).toLocaleString("en-IN")} raised</span>
+                      <span>{c.entry_fee && Number(c.entry_fee) > 0 ? `Entry: ₹${Number(c.entry_fee)}` : "Free to Join"}</span>
                       <span>{pct}% of ₹{parseFloat(String(c.goal)).toLocaleString("en-IN")}</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-1.5">
@@ -279,8 +410,11 @@ export default function AdminCampaigns() {
                   </div>
 
                   <div className="flex gap-2 pt-1">
-                    <button onClick={() => edit(c)} className="flex-1 flex items-center justify-center gap-1.5 border rounded-xl py-2 text-xs font-semibold hover:bg-slate-50 transition-colors">
-                      <Pencil className="w-3 h-3" /> Edit
+                    <button onClick={() => viewParticipants(c)} className="flex-1 flex items-center justify-center gap-1.5 border rounded-xl py-2 text-xs font-semibold hover:bg-slate-50 transition-colors">
+                      <Users className="w-3 h-3" /> Participants
+                    </button>
+                    <button onClick={() => edit(c)} className="flex items-center justify-center gap-1.5 border rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition-colors">
+                      <Pencil className="w-3 h-3" />
                     </button>
                     <button onClick={() => remove(c.id)} className="p-2 border rounded-xl hover:bg-red-50 text-red-500 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />

@@ -69,25 +69,75 @@ export default function DonationsPage() {
     setDonateLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/donations/donate`, {
+
+      const orderRes = await fetch(`${API_BASE_URL}/donations/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          campaign_id: donating.id,
-          amount: amt,
-          donor_name: user?.name || "Anonymous",
-          donor_email: user?.email || "",
-          user_id: user?.id || null,
-        }),
+        body: JSON.stringify({ amount: amt })
       });
-      const newDon = await res.json();
-      setCampaigns(prev => prev.map(c => c.id === donating.id ? { ...c, collected: (c.collected || 0) + amt } : c));
-      setDonations(prev => [{ ...newDon, campaign_title: donating.title }, ...prev]);
-      setDonateSuccess(true);
+      if (!orderRes.ok) throw new Error("Could not create donation order");
+      const orderData = await orderRes.json();
+
+      const processDonation = async (paymentId: string) => {
+        const res = await fetch(`${API_BASE_URL}/donations/donate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({
+            campaign_id: donating.id,
+            amount: amt,
+            donor_name: user?.name || "Anonymous",
+            donor_email: user?.email || "",
+            user_id: user?.id || null,
+            payment_id: paymentId,
+          }),
+        });
+        const newDon = await res.json();
+        setCampaigns(prev => prev.map(c => c.id === donating.id ? { ...c, collected: (c.collected || 0) + amt } : c));
+        setDonations(prev => [{ ...newDon, campaign_title: donating.title }, ...prev]);
+        setDonateSuccess(true);
+        setDonateLoading(false);
+      };
+
+      if (orderData.mock) {
+        await processDonation("pay_mock_" + Date.now());
+        return;
+      }
+
+      const loadScript = () => new Promise((resolve) => {
+        if ((window as any).Razorpay) return resolve(true);
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+
+      const scriptLoaded = await loadScript();
+      if (!scriptLoaded) { alert("Razorpay failed to load"); setDonateLoading(false); return; }
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.order.amount,
+        currency: "INR",
+        name: "Social News",
+        description: `Donation for ${donating.title}`,
+        order_id: orderData.order.id,
+        handler: async function (response: any) {
+          await processDonation(response.razorpay_payment_id);
+        },
+        prefill: { name: user?.name, email: user?.email },
+        theme: { color: "#f59e0b" }
+      };
+      
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function () {
+        alert("Payment failed");
+        setDonateLoading(false);
+      });
+      rzp.open();
     } catch (err) {
       console.error(err);
       alert("Donation failed. Please try again.");
-    } finally {
       setDonateLoading(false);
     }
   };

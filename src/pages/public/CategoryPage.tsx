@@ -1,11 +1,39 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { getArticlesByCategory, mockCategories } from "@/utils/mockData";
 import { NewsCard } from "@/components/news/NewsCard";
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
   const category = mockCategories.find(c => c.id === categoryId);
-  const articles = getArticlesByCategory(categoryId || "");
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      setLoading(true);
+      try {
+        const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + `/news?category=${categoryId}`;
+        const res = await fetch(API);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.news && data.news.length > 0) {
+            setArticles(data.news);
+          } else {
+            // Fallback to mock data if API returns empty
+            setArticles(getArticlesByCategory(categoryId || ""));
+          }
+        } else {
+          setArticles(getArticlesByCategory(categoryId || ""));
+        }
+      } catch {
+        setArticles(getArticlesByCategory(categoryId || ""));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, [categoryId]);
 
   if (!category) {
     return (
@@ -17,6 +45,10 @@ export default function CategoryPage() {
         </Link>
       </div>
     );
+  }
+
+  if (loading) {
+    return <div className="p-20 text-center text-foreground/50 font-bold">Loading {category.label} news...</div>;
   }
 
   return (
@@ -45,3 +77,4 @@ export default function CategoryPage() {
     </div>
   );
 }
+

@@ -14,6 +14,10 @@ interface ProfileData {
   level: number;
   bio: string;
   joined: string;
+  age?: number;
+  gender?: string;
+  college?: string;
+  address?: string;
 }
 
 export default function Profile() {
@@ -84,6 +88,36 @@ export default function Profile() {
                   <p className="text-sm font-semibold">Level {(data as any)?.level || 1}</p>
                 </div>
               </div>
+
+              {(data as any)?.age && (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border">
+                  <User className="w-5 h-5 text-secondary shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Age / Gender</p>
+                    <p className="text-sm font-semibold capitalize">{(data as any)?.age} / {(data as any)?.gender || 'N/A'}</p>
+                  </div>
+                </div>
+              )}
+
+              {(data as any)?.college && (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border sm:col-span-2">
+                  <Award className="w-5 h-5 text-secondary shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">College</p>
+                    <p className="text-sm font-semibold">{(data as any)?.college}</p>
+                  </div>
+                </div>
+              )}
+              
+              {(data as any)?.address && (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border sm:col-span-2">
+                  <Mail className="w-5 h-5 text-secondary shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Address</p>
+                    <p className="text-sm font-semibold">{(data as any)?.address}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {(profile as any)?.bio && (

@@ -1,20 +1,53 @@
-import { mockArticles, getArticlesByCategory } from "@/utils/mockData";
+import { useState, useEffect } from "react";
 import { NewsCard } from "@/components/news/NewsCard";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, PlayCircle } from "lucide-react";
 import { ContactSection } from "@/components/news/ContactSection";
 
+// Fallback mock data in case API fails
+import { mockArticles as fallbackMock } from "@/utils/mockData";
+
 export default function Home() {
-  const topStory = mockArticles[0];
-  const latestNews = mockArticles.slice(1, 5);
+  const [allNews, setAllNews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/news";
+        const res = await fetch(API);
+        if (res.ok) {
+          const data = await res.json();
+          setAllNews(data.news || []);
+        } else {
+          setAllNews(fallbackMock);
+        }
+      } catch (error) {
+        console.error("Failed to fetch news", error);
+        setAllNews(fallbackMock);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  const getCat = (cat: string) => allNews.filter(n => n.category.toLowerCase() === cat.toLowerCase());
+
+  const topStory = allNews.length > 0 ? allNews[0] : null;
+  const latestNews = allNews.slice(1, 5);
   
-  const apNews = getArticlesByCategory("ap").slice(0, 4);
-  const tsNews = getArticlesByCategory("ts").slice(0, 4);
-  const nationalNews = getArticlesByCategory("national").slice(0, 4);
-  const internationalNews = getArticlesByCategory("international").slice(0, 4);
-  const cinemaNews = getArticlesByCategory("cinema").slice(0, 4);
-  const sportsNews = getArticlesByCategory("sports").slice(0, 4);
-  const businessNews = getArticlesByCategory("business").slice(0, 4);
+  const apNews = getCat("ap").slice(0, 4);
+  const tsNews = getCat("ts").slice(0, 4);
+  const nationalNews = getCat("national").slice(0, 4);
+  const internationalNews = getCat("international").slice(0, 4);
+  const cinemaNews = getCat("cinema").slice(0, 4);
+  const sportsNews = getCat("sports").slice(0, 4);
+  const businessNews = getCat("business").slice(0, 4);
+
+  if (loading) {
+    return <div className="p-20 text-center text-foreground/50 font-bold">Loading latest news...</div>;
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -174,6 +207,25 @@ export default function Home() {
       </div>
 
       <hr className="border-border" />
+
+      {/* Featured Video Section */}
+      <section className="bg-white p-6 md:p-10 rounded-2xl border shadow-sm">
+        <div className="flex justify-between items-end mb-8 border-b-2 border-primary pb-2">
+          <div className="flex items-center gap-3">
+            <PlayCircle className="w-8 h-8 text-destructive" />
+            <h2 className="text-2xl md:text-3xl font-black text-primary">FEATURED VIDEO</h2>
+          </div>
+        </div>
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900 shadow-xl group">
+          <iframe 
+            className="w-full h-full"
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0" 
+            title="Featured Video" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowFullScreen
+          ></iframe>
+        </div>
+      </section>
       
       <ContactSection />
 

@@ -84,8 +84,8 @@ export function Footer() {
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-white/50">
           <p>© {new Date().getFullYear()} Social News Network. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <Link to="#" className="hover:text-white">Terms of Use</Link>
-            <Link to="#" className="hover:text-white">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white">Terms of Use</Link>
+            <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
           </div>
         </div>
       </div>

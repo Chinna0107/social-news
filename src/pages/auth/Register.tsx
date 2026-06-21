@@ -12,6 +12,10 @@ interface RegisterFormData {
   password: string;
   phone: string;
   role: RegisterType;
+  age?: string;
+  gender?: string;
+  college?: string;
+  address?: string;
 }
 
 export default function Register() {
@@ -30,7 +34,11 @@ export default function Register() {
     email: '',
     password: '',
     phone: '',
-    role: 'student'
+    role: 'student',
+    age: '',
+    gender: '',
+    college: '',
+    address: ''
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -349,6 +357,54 @@ export default function Register() {
                       className="w-full px-4 py-3 rounded-lg border border-border bg-white/70 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm"
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-secondary mb-2 uppercase tracking-wider">Age</label>
+                      <input 
+                        type="number" 
+                        value={formData.age}
+                        onChange={(e) => handleInputChange('age', e.target.value)}
+                        placeholder="Age"
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-white/70 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-secondary mb-2 uppercase tracking-wider">Gender</label>
+                      <select 
+                        value={formData.gender}
+                        onChange={(e) => handleInputChange('gender', e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-white/70 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-secondary mb-2 uppercase tracking-wider">College</label>
+                    <input 
+                      type="text" 
+                      value={formData.college}
+                      onChange={(e) => handleInputChange('college', e.target.value)}
+                      placeholder="Enter your college name"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-white/70 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-secondary mb-2 uppercase tracking-wider">Address</label>
+                    <textarea 
+                      value={formData.address}
+                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      placeholder="Enter your full address"
+                      rows={2}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-white/70 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm resize-none"
+                    />
+                  </div>
                   
                   <div>
                     <label className="block text-xs font-bold text-secondary mb-2 uppercase tracking-wider">Password</label>
@@ -366,7 +422,7 @@ export default function Register() {
                   <div className="flex items-center gap-2 pt-2 pb-4">
                     <input type="checkbox" id="terms" required className="w-4 h-4 rounded border-border text-secondary focus:ring-secondary/20 transition-all cursor-pointer" />
                     <label htmlFor="terms" className="text-sm text-foreground cursor-pointer select-none">
-                      I agree to the <a href="#" className="text-secondary hover:underline">Terms of Service</a> and <a href="#" className="text-secondary hover:underline">Privacy Policy</a>
+                      I agree to the <Link to="/terms" className="text-secondary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-secondary hover:underline">Privacy Policy</Link>
                     </label>
                   </div>
                 </motion.div>
@@ -459,9 +515,9 @@ export default function Register() {
           <div className="mt-auto pt-8 text-center">
             <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-3">Secured by Enterprise Protocol 4.0</p>
             <div className="flex justify-center gap-4 text-[11px] font-medium text-foreground/60">
-              <a href="#" className="hover:text-secondary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-secondary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-secondary transition-colors">Help Center</a>
+              <Link to="/privacy" className="hover:text-secondary transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-secondary transition-colors">Terms of Service</Link>
+              <Link to="#" className="hover:text-secondary transition-colors">Help Center</Link>
             </div>
           </div>
 

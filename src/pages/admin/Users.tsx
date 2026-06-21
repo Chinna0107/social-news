@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, ToggleLeft, ToggleRight, Search, X } from "lucide-react";
+import { Pencil, Trash2, ToggleLeft, ToggleRight, Search, X, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 interface User {
   id: number;
@@ -11,6 +14,10 @@ interface User {
   level: string;
   is_active: boolean;
   created_at: string;
+  age?: number;
+  gender?: string;
+  college?: string;
+  address?: string;
 }
 
 const ROLES = ["student", "user", "civic_leader", "volunteer", "moderator", "admin"];
@@ -45,6 +52,35 @@ export default function AdminUsers() {
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(1); load(); };
 
+  const exportPDF = async () => {
+    const doc = new jsPDF();
+    doc.text("User Management Report", 14, 15);
+    const r = await fetch(`${API}?limit=1000`, { headers: headers() });
+    const data = await r.json();
+    const exportUsers = data.users || [];
+    
+    const tableColumn = ["ID", "Name", "Email", "Role", "Age", "Gender", "College", "Points", "Status"];
+    const tableRows = exportUsers.map((u: User) => [
+      u.id, u.name, u.email, u.role, u.age || '-', u.gender || '-', u.college || '-', u.impact_points, u.is_active ? "Active" : "Inactive"
+    ]);
+
+    autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
+    doc.save("users_report.pdf");
+  };
+
+  const exportExcel = async () => {
+    const r = await fetch(`${API}?limit=1000`, { headers: headers() });
+    const data = await r.json();
+    const exportUsers = data.users || [];
+
+    const worksheet = XLSX.utils.json_to_sheet(exportUsers.map((u: User) => ({
+      ID: u.id, Name: u.name, Email: u.email, Role: u.role, Age: u.age || '', Gender: u.gender || '', College: u.college || '', Address: u.address || '', Points: u.impact_points, Status: u.is_active ? "Active" : "Inactive", Joined: new Date(u.created_at).toLocaleDateString()
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users_report.xlsx");
+  };
+
   const toggle = async (id: number) => {
     await fetch(`${API}/${id}/toggle`, { method: "PATCH", headers: headers() });
     load();
@@ -66,8 +102,18 @@ export default function AdminUsers() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-secondary">User Management</h1>
-        <span className="text-sm text-foreground/50 font-semibold">{total.toLocaleString()} total users</span>
+        <div>
+          <h1 className="text-2xl font-bold text-secondary">User Management</h1>
+          <span className="text-sm text-foreground/50 font-semibold">{total.toLocaleString()} total users</span>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={exportPDF} className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors">
+            <Download className="w-4 h-4" /> PDF
+          </button>
+          <button onClick={exportExcel} className="flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-green-100 transition-colors">
+            <Download className="w-4 h-4" /> Excel
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -96,7 +142,7 @@ export default function AdminUsers() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-[10px] font-black text-foreground/40 uppercase tracking-widest">
-              <tr>{["User", "Role", "Points", "Status", "Joined", "Actions"].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
+              <tr>{["User", "Role", "Details", "Points", "Status", "Joined", "Actions"].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-border/50">
               {loading ? (
@@ -115,6 +161,11 @@ export default function AdminUsers() {
                     </div>
                   </td>
                   <td className="px-4 py-3"><span className="bg-slate-100 text-secondary text-[10px] font-bold px-2 py-0.5 rounded capitalize">{u.role}</span></td>
+                  <td className="px-4 py-3 text-[11px] text-foreground/70">
+                    <div><strong>Age/Gen:</strong> {u.age || '-'} / {u.gender || '-'}</div>
+                    <div><strong>College:</strong> {u.college || '-'}</div>
+                    <div className="max-w-[120px] truncate" title={u.address}><strong>Address:</strong> {u.address || '-'}</div>
+                  </td>
                   <td className="px-4 py-3 text-xs font-bold text-secondary">{u.impact_points?.toLocaleString()}</td>
                   <td className="px-4 py-3">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${u.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>

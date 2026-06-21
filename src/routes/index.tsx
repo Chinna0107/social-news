@@ -11,6 +11,9 @@ import PublicEventsPage from "@/pages/public/EventsPage";
 import PublicMarketplacePage from "@/pages/public/MarketplacePage";
 import PublicDonationsPage from "@/pages/public/DonationsPage";
 import PublicCampaignsPage from "@/pages/public/CampaignsPage";
+import PrivacyPolicy from "@/pages/public/PrivacyPolicy";
+import TermsOfService from "@/pages/public/TermsOfService";
+import RefundPolicy from "@/pages/public/RefundPolicy";
 
 // Auth Pages
 import Login from "@/pages/auth/Login";
@@ -34,6 +37,7 @@ import AdminEnquiries from "@/pages/admin/Enquiries";
 import AdminContent from "@/pages/admin/Content";
 import AdminAdsense from "@/pages/admin/Adsense";
 import AdminReports from "@/pages/admin/Reports";
+import AdminNews from "@/pages/admin/News";
 
 // Student Pages
 import StudentDashboard from "@/pages/student/Dashboard";
@@ -73,6 +77,9 @@ const router = createBrowserRouter([
       { path: "campaigns", element: <PublicCampaignsPage /> },
       { path: "marketplace", element: <PublicMarketplacePage /> },
       { path: "donations", element: <PublicDonationsPage /> },
+      { path: "privacy", element: <PrivacyPolicy /> },
+      { path: "terms", element: <TermsOfService /> },
+      { path: "refund-policy", element: <RefundPolicy /> },
       { path: "*", element: <ComingSoon /> },
     ],
   },
@@ -158,6 +165,7 @@ const router = createBrowserRouter([
       { path: "content", element: <AdminContent /> },
       { path: "adsense", element: <AdminAdsense /> },
       { path: "reports", element: <AdminReports /> },
+      { path: "news", element: <AdminNews /> },
       { path: "*", element: <ComingSoon /> },
     ],
   },

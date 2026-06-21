@@ -16,6 +16,7 @@ interface Campaign {
   goal: number;
   tag: string;
   is_registered?: boolean;
+  entry_fee?: number;
 }
 
 const inr = (n: number) =>
@@ -49,10 +50,80 @@ export default function CampaignsPage() {
     const id = campaign.id || campaign._id!;
     setRegistering(id);
     try {
-      await apiRequest(`/student/campaigns/${id}/register`, { method: "POST" });
-      setCampaigns(prev => prev.map(c => (c.id === id || c._id === id) ? { ...c, is_registered: true } : c));
-    } catch (err) { console.error(err); }
-    finally { setRegistering(null); }
+      if (campaign.entry_fee && campaign.entry_fee > 0) {
+        const token = localStorage.getItem("token");
+        const orderRes = await fetch(`${API_BASE_URL}/student/campaigns/${id}/order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+        });
+        if (!orderRes.ok) throw new Error("Could not create order");
+        const orderData = await orderRes.json();
+
+        if (orderData.mock) {
+          await apiRequest(`/student/campaigns/${id}/register`, {
+            method: "POST",
+            body: JSON.stringify({
+              payment_id: "pay_mock_" + Date.now(),
+              order_id: orderData.order.id,
+              signature: "mock_signature"
+            })
+          });
+          setCampaigns(prev => prev.map(c => (c.id === id || c._id === id) ? { ...c, is_registered: true, collected: (c.collected || 0) + Number(campaign.entry_fee) } : c));
+          setRegistering(null);
+          alert("Mock Payment Successful! (Using dummy Razorpay keys)");
+          return;
+        }
+        
+        const loadScript = () => new Promise((resolve) => {
+          if ((window as any).Razorpay) return resolve(true);
+          const script = document.createElement("script");
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+
+        const scriptLoaded = await loadScript();
+        if (!scriptLoaded) { alert("Razorpay failed to load"); setRegistering(null); return; }
+
+        const options = {
+          key: orderData.key,
+          amount: orderData.order.amount,
+          currency: "INR",
+          name: "Social News",
+          description: `Entry Fee for ${campaign.title}`,
+          order_id: orderData.order.id,
+          handler: async function (response: any) {
+            await apiRequest(`/student/campaigns/${id}/register`, {
+              method: "POST",
+              body: JSON.stringify({
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                signature: response.razorpay_signature
+              })
+            });
+            setCampaigns(prev => prev.map(c => (c.id === id || c._id === id) ? { ...c, is_registered: true, collected: (c.collected || 0) + Number(campaign.entry_fee) } : c));
+            setRegistering(null);
+          },
+          prefill: { name: user?.name, email: user?.email },
+          theme: { color: "#f59e0b" } // Amber
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function () {
+          alert("Payment failed");
+          setRegistering(null);
+        });
+        rzp.open();
+      } else {
+        await apiRequest(`/student/campaigns/${id}/register`, { method: "POST" });
+        setCampaigns(prev => prev.map(c => (c.id === id || c._id === id) ? { ...c, is_registered: true } : c));
+        setRegistering(null);
+      }
+    } catch (err) { 
+      console.error(err); 
+      alert("Registration failed.");
+      setRegistering(null); 
+    }
   };
 
   const openDonate = (campaign: Campaign) => {
@@ -67,26 +138,80 @@ export default function CampaignsPage() {
     setDonateLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${API_BASE_URL}/donations/donate`, {
+
+      // Create Order
+      const orderRes = await fetch(`${API_BASE_URL}/donations/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          campaign_id: donating.id || donating._id,
-          amount: amt,
-          donor_name: user?.name || "Anonymous",
-          donor_email: user?.email || "",
-          user_id: user?.id || null,
-        }),
+        body: JSON.stringify({ amount: amt })
       });
-      // Update collected in local state
-      setCampaigns(prev => prev.map(c =>
-        (c.id === donating.id || c._id === donating._id)
-          ? { ...c, collected: (c.collected || 0) + amt }
-          : c
-      ));
-      setDonateSuccess(true);
-    } catch (err) { console.error(err); alert("Donation failed. Please try again."); }
-    finally { setDonateLoading(false); }
+      if (!orderRes.ok) throw new Error("Could not create donation order");
+      const orderData = await orderRes.json();
+
+      const processDonation = async (paymentId: string) => {
+        await fetch(`${API_BASE_URL}/donations/donate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({
+            campaign_id: donating.id || donating._id,
+            amount: amt,
+            donor_name: user?.name || "Anonymous",
+            donor_email: user?.email || "",
+            user_id: user?.id || null,
+            payment_id: paymentId,
+          }),
+        });
+        setCampaigns(prev => prev.map(c =>
+          (c.id === donating.id || c._id === donating._id)
+            ? { ...c, collected: (c.collected || 0) + amt }
+            : c
+        ));
+        setDonateSuccess(true);
+        setDonateLoading(false);
+      };
+
+      if (orderData.mock) {
+        await processDonation("pay_mock_" + Date.now());
+        return;
+      }
+
+      const loadScript = () => new Promise((resolve) => {
+        if ((window as any).Razorpay) return resolve(true);
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+
+      const scriptLoaded = await loadScript();
+      if (!scriptLoaded) { alert("Razorpay failed to load"); setDonateLoading(false); return; }
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.order.amount,
+        currency: "INR",
+        name: "Social News",
+        description: `Donation for ${donating.title}`,
+        order_id: orderData.order.id,
+        handler: async function (response: any) {
+          await processDonation(response.razorpay_payment_id);
+        },
+        prefill: { name: user?.name, email: user?.email },
+        theme: { color: "#f59e0b" }
+      };
+      
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function () {
+        alert("Payment failed");
+        setDonateLoading(false);
+      });
+      rzp.open();
+    } catch (err) { 
+      console.error(err); 
+      alert("Donation failed. Please try again."); 
+      setDonateLoading(false);
+    }
   };
 
   return (
@@ -178,6 +303,12 @@ export default function CampaignsPage() {
                       <Calendar className="w-3.5 h-3.5 text-secondary" />
                       <span>{new Date(Date.now() + Math.random() * 10000000000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
+
+                    {campaign.entry_fee && campaign.entry_fee > 0 && (
+                      <div className="mb-4 text-xs font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg w-max">
+                        Entry Fee: ₹{Number(campaign.entry_fee)}
+                      </div>
+                    )}
 
                     {/* Progress */}
                     <div className="space-y-1.5 mb-4">
