@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, ToggleLeft, ToggleRight, Search, X, Download } from "lucide-react";
+import { Pencil, Trash2, ToggleLeft, ToggleRight, Search, X, Download, Loader2 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -34,6 +34,7 @@ export default function AdminUsers() {
   const [filterStatus, setFilterStatus] = useState("");
   const [editUser, setEditUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -95,8 +96,13 @@ export default function AdminUsers() {
   const saveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editUser) return;
-    await fetch(`${API}/${editUser.id}`, { method: "PUT", headers: headers(), body: JSON.stringify(editUser) });
-    setEditUser(null); load();
+    setSaving(true);
+    try {
+      await fetch(`${API}/${editUser.id}`, { method: "PUT", headers: headers(), body: JSON.stringify(editUser) });
+      setEditUser(null); load();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -221,7 +227,10 @@ export default function AdminUsers() {
               <label htmlFor="is_active" className="text-sm font-semibold">Active</label>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="flex-1 bg-secondary text-white py-2 rounded-lg font-semibold text-sm">Save</button>
+              <button type="submit" disabled={saving} className="flex-1 bg-secondary text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {saving ? "Saving..." : "Save"}
+              </button>
               <button type="button" onClick={() => setEditUser(null)} className="px-4 border rounded-lg text-sm">Cancel</button>
             </div>
           </form>

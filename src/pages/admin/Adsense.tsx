@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Eye, MousePointer, BarChart2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Eye, MousePointer, BarChart2, Loader2 } from "lucide-react";
 
 interface AdUnit {
   id: number;
@@ -39,6 +39,7 @@ export default function AdminAdsense() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -55,10 +56,15 @@ export default function AdminAdsense() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const method = editId ? "PUT" : "POST";
-    const url = editId ? `${API}/${editId}` : API;
-    await fetch(url, { method, headers: headers(), body: JSON.stringify(form) });
-    setForm(empty); setEditId(null); setShowForm(false); load();
+    setSaving(true);
+    try {
+      const method = editId ? "PUT" : "POST";
+      const url = editId ? `${API}/${editId}` : API;
+      await fetch(url, { method, headers: headers(), body: JSON.stringify(form) });
+      setForm(empty); setEditId(null); setShowForm(false); load();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggle = async (id: number) => {
@@ -129,7 +135,9 @@ export default function AdminAdsense() {
             onChange={e => setForm({ ...form, custom_html: e.target.value })}
             className="col-span-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 font-mono" />
           <div className="col-span-full flex gap-3">
-            <button type="submit" className="bg-secondary text-white px-6 py-2 rounded-lg text-sm font-semibold">{editId ? "Update" : "Create"}</button>
+            <button type="submit" disabled={saving} className="bg-secondary text-white px-6 py-2 rounded-lg text-sm font-semibold flex items-center justify-center min-w-[100px] disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : (editId ? "Update" : "Create")}
+            </button>
             <button type="button" onClick={() => setShowForm(false)} className="border px-6 py-2 rounded-lg text-sm">Cancel</button>
           </div>
         </form>

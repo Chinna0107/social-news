@@ -7,7 +7,6 @@ import {
   Store,
   GraduationCap,
   HeartHandshake,
-  Settings,
   Search,
   Bell,
   HelpCircle,
@@ -17,7 +16,8 @@ import {
   ClipboardList,
   SendHorizonal,
   Package,
-  Newspaper
+  Newspaper,
+  Camera
 } from "lucide-react";
 
 export function AdminLayout() {
@@ -36,7 +36,8 @@ export function AdminLayout() {
     { icon: HeartHandshake, label: "Donation Tracking", path: "/admin/donations" },
     { icon: MessageSquare, label: "Enquiries", path: "/admin/enquiries" },
     { icon: Newspaper, label: "News Management", path: "/admin/news" },
-    { icon: Settings, label: "CMS", path: "/admin/content" },
+    { icon: Camera, label: "Selfie Management", path: "/admin/selfie-management" },
+    // { icon: Settings, label: "CMS", path: "/admin/content" },
   ];
 
   return (

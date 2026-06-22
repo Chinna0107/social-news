@@ -78,4 +78,15 @@
   .news-image-hover {
     @apply transition-transform duration-500 hover:scale-105 cursor-pointer;
   }
+
+  /* Telugu Font Classes for News Section */
+  .news-body-text {
+    font-family: 'Mallanna', sans-serif;
+  }
+  .news-heading {
+    font-family: 'Ramabhadra', sans-serif;
+  }
+  .news-subheading {
+    font-family: 'Sree Krushnadevaraya', serif;
+  }
 }

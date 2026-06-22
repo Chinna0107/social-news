@@ -40,6 +40,7 @@ export default function AdminTasks() {
   const [dueDate, setDueDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const loadTasks = async () => {
     setLoading(true);
@@ -96,6 +97,7 @@ export default function AdminTasks() {
 
   const handleSave = async () => {
     if (!title.trim()) return alert("Title is required");
+    setSaving(true);
     try {
       const method = editingTask ? "PUT" : "POST";
       const url = editingTask ? `${API}/${editingTask.id}` : API;
@@ -105,7 +107,7 @@ export default function AdminTasks() {
       });
       if (res.ok) { setModalOpen(false); loadTasks(); }
       else alert("Failed to save task");
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error(err); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: number) => {
@@ -284,8 +286,9 @@ export default function AdminTasks() {
 
             <div className="p-4 border-t bg-slate-50 flex justify-end gap-3">
               <button onClick={() => setModalOpen(false)} className="px-5 py-2 rounded-lg font-semibold text-sm border bg-white hover:bg-slate-100 transition-colors">Cancel</button>
-              <button onClick={handleSave} disabled={uploading} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all disabled:opacity-60">
-                Save Task
+              <button onClick={handleSave} disabled={uploading || saving} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all disabled:opacity-60 flex items-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? "Saving..." : "Save Task"}
               </button>
             </div>
           </motion.div>

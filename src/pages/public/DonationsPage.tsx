@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { publicApi } from "@/utils/api";
 import { HeartHandshake, ShieldCheck } from "lucide-react";
+import DonationModal from "@/components/news/DonationModal";
 
 interface Donation {
   _id: string;
@@ -27,12 +28,18 @@ const txId = (id: string) => `TX-${id.toUpperCase().padEnd(9, "0").slice(0, 9)}`
 export default function DonationsPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadDonations = () => {
+    setLoading(true);
     publicApi.donations()
       .then(setDonations)
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadDonations();
   }, []);
 
   return (
@@ -84,13 +91,23 @@ export default function DonationsPage() {
             )}
 
             <div className="p-6 bg-slate-50 border-t text-center">
-              <button className="text-secondary font-bold hover:text-primary transition-colors text-sm flex items-center gap-2 mx-auto">
+              <button 
+                onClick={() => setModalOpen(true)}
+                className="text-secondary font-bold hover:text-primary transition-colors text-sm flex items-center gap-2 mx-auto"
+              >
                 <HeartHandshake className="w-4 h-4" /> Make a Direct Donation
               </button>
             </div>
           </div>
         </motion.div>
       </motion.div>
+
+      <DonationModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        selectedCampaign={null}
+        onSuccess={loadDonations}
+      />
     </div>
   );
 }

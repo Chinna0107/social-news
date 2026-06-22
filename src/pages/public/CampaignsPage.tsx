@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { publicApi } from "@/utils/api";
 import { Users } from "lucide-react";
+import DonationModal from "@/components/news/DonationModal";
 
 interface Campaign {
   _id: string;
@@ -30,12 +31,18 @@ const staggerContainer: Variants = {
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
 
-  useEffect(() => {
+  const loadCampaigns = () => {
+    setLoading(true);
     publicApi.campaigns()
       .then(setCampaigns)
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadCampaigns();
   }, []);
 
   return (
@@ -50,46 +57,74 @@ export default function CampaignsPage() {
           <p className="text-center text-muted-foreground">Loading campaigns...</p>
         ) : (
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {campaigns.map((campaign) => (
-              <div key={campaign._id || campaign.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden group hover:shadow-lg transition-all">
-                <div className="h-52 relative overflow-hidden">
-                  <img src={campaign.image} alt={campaign.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  {campaign.tag && (
-                    <div className="absolute top-4 left-4 bg-destructive text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                      {campaign.tag}
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-xl mb-2 group-hover:text-destructive transition-colors">{campaign.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{campaign.description}</p>
+            {campaigns.map((campaign) => {
+              const goalVal = Number(campaign.goal) || 0;
+              const colVal = Number(campaign.collected) || 0;
+              const progressVal = goalVal > 0 ? Math.min(Math.round((colVal / goalVal) * 100), 100) : 0;
+              const participantsVal = Number(campaign.participants) || 0;
 
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-destructive">${Number(campaign.collected).toLocaleString()} raised</span>
-                      <span className="text-muted-foreground">of ${Number(campaign.goal).toLocaleString()}</span>
+              return (
+                <div key={campaign._id || campaign.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden group hover:shadow-lg transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-52 relative overflow-hidden">
+                      <img src={campaign.image} alt={campaign.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {campaign.tag && (
+                        <div className="absolute top-4 left-4 bg-destructive text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                          {campaign.tag}
+                        </div>
+                      )}
                     </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-destructive rounded-full transition-all duration-700" style={{ width: `${Number(campaign.progress)}%` }} />
+                    <div className="p-6">
+                      <h3 className="font-bold text-xl mb-2 group-hover:text-destructive transition-colors">{campaign.title}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{campaign.description}</p>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-xs font-bold">
+                          <span className="text-destructive">${colVal.toLocaleString()} raised</span>
+                          <span className="text-muted-foreground">of ${goalVal.toLocaleString()}</span>
+                        </div>
+                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-destructive rounded-full transition-all duration-700" style={{ width: `${progressVal}%` }} />
+                        </div>
+                        <p className="text-xs text-right text-muted-foreground font-semibold">{progressVal}% funded</p>
+                      </div>
                     </div>
-                    <p className="text-xs text-right text-muted-foreground font-semibold">{Math.round(Number(campaign.progress))}% funded</p>
                   </div>
 
-                  <div className="flex justify-between items-center pt-4 border-t">
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      {Number(campaign.participants || 0).toLocaleString()} participants
-                    </div>
-                    <button className="bg-secondary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-destructive transition-colors">
+                  <div className="p-6 pt-0 border-t mt-auto">
+                    <div className="flex justify-between items-center pt-4">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        {participantsVal.toLocaleString()} participants
+                      </div>
+                    <button 
+                      onClick={() => setSelectedCampaign({
+                        id: campaign.id || campaign._id,
+                        title: campaign.title,
+                        description: campaign.description,
+                        image: campaign.image,
+                        goal: Number(campaign.goal),
+                        collected: Number(campaign.collected)
+                      })}
+                      className="bg-secondary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-destructive transition-colors"
+                    >
                       Support Now
                     </button>
                   </div>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </motion.div>
         )}
       </motion.div>
+
+      <DonationModal
+        isOpen={!!selectedCampaign}
+        onClose={() => setSelectedCampaign(null)}
+        selectedCampaign={selectedCampaign}
+        onSuccess={loadCampaigns}
+      />
     </div>
   );
 }

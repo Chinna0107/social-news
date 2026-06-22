@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { HeartHandshake, X, CheckCircle2, Loader2, IndianRupee, Megaphone, History } from "lucide-react";
@@ -43,6 +44,7 @@ export default function DonationsPage() {
   const [amount, setAmount] = useState("");
   const [donateLoading, setDonateLoading] = useState(false);
   const [donateSuccess, setDonateSuccess] = useState(false);
+  const [agreePolicies, setAgreePolicies] = useState(false);
 
   useEffect(() => {
     apiRequest("/student/donations/history")
@@ -61,6 +63,7 @@ export default function DonationsPage() {
     setDonating(c);
     setAmount("");
     setDonateSuccess(false);
+    setAgreePolicies(false);
   };
 
   const handleDonate = async () => {
@@ -371,8 +374,22 @@ export default function DonationsPage() {
                         </div>
                       </div>
 
+                      {/* Policy Agreement Checkbox */}
+                      <div className="flex items-start gap-2.5 p-4 bg-slate-50 rounded-2xl border border-border/50">
+                        <input
+                          type="checkbox"
+                          id="agreeDonationPolicies"
+                          checked={agreePolicies}
+                          onChange={e => setAgreePolicies(e.target.checked)}
+                          className="w-4.5 h-4.5 mt-0.5 rounded border-border text-secondary focus:ring-secondary/20 transition-all cursor-pointer"
+                        />
+                        <label htmlFor="agreeDonationPolicies" className="text-xs text-foreground/75 cursor-pointer leading-relaxed text-left">
+                          I agree to the <Link to="/terms" target="_blank" className="text-secondary font-semibold hover:underline">Terms of Service</Link>, <Link to="/privacy" target="_blank" className="text-secondary font-semibold hover:underline">Privacy Policy</Link>, and <Link to="/refund-policy" target="_blank" className="text-secondary font-semibold hover:underline">Refund Policy</Link> for this payment.
+                        </label>
+                      </div>
+
                       <button onClick={handleDonate}
-                        disabled={donateLoading || !amount || parseFloat(amount) <= 0}
+                        disabled={donateLoading || !amount || parseFloat(amount) <= 0 || !agreePolicies}
                         className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white py-3.5 rounded-xl font-extrabold flex items-center justify-center gap-2 transition-colors shadow-lg">
                         {donateLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <HeartHandshake className="w-5 h-5" />}
                         {donateLoading ? "Processing..." : `Donate ₹${parseFloat(amount || "0").toLocaleString("en-IN") || "—"}`}

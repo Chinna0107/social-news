@@ -155,7 +155,7 @@ export default function Home() {
       {/* Cinema */}
       <section className="bg-slate-900 text-white p-6 rounded-xl -mx-4 md:-mx-6 shadow-lg">
         <div className="flex justify-between items-end mb-6 border-b-2 border-white/20 pb-2">
-          <h2 className="text-xl md:text-2xl font-black text-white">CINEMA</h2>
+          <h2 className="text-xl md:text-2xl font-black text-white">Cinema</h2>
           <Link to="/category/cinema" className="text-sm font-bold text-destructive flex items-center hover:underline">
             View All <ChevronRight className="w-4 h-4" />
           </Link>
@@ -163,8 +163,8 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {cinemaNews.map(article => (
             <Link key={article.id} to={`/article/${article.id}`} className="group block">
-              <div className="aspect-[3/4] w-full overflow-hidden rounded-lg mb-3">
-                <img src={article.image} alt={article.title} className="w-full h-full object-cover news-image-hover" />
+              <div className="aspect-[3/4] w-full overflow-hidden rounded-lg mb-3 bg-slate-800/50 flex items-center justify-center border border-white/10">
+                <img src={article.image} alt={article.title} className="w-full h-full object-contain news-image-hover" />
               </div>
               <h3 className="text-lg font-bold text-white group-hover:text-destructive transition-colors line-clamp-2 mb-2">
                 {article.title}

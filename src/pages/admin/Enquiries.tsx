@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { MessageSquare, CheckCircle, X, Search, Trash2, Eye } from "lucide-react";
+import { MessageSquare, CheckCircle, X, Search, Trash2, Eye, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/enquiries";
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/enquiries";
 const token = () => localStorage.getItem("token");
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
@@ -22,6 +22,7 @@ export default function AdminEnquiries() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // Modal State
   const [selected, setSelected] = useState<any | null>(null);
@@ -65,23 +66,41 @@ export default function AdminEnquiries() {
 
   const saveReply = async () => {
     if (!selected) return;
+    setSaving(true);
     
-    // Update reply note if changed
-    if (replyNote !== selected.admin_note) {
-      await fetch(`${API}/${selected.id}/reply`, { 
+    try {
+      // Update status via the correct PATCH endpoint
+      await fetch(`${API}/${selected.id}/status`, { 
         method: "PATCH", 
         headers: headers(), 
-        body: JSON.stringify({ reply: replyNote }) 
+        body: JSON.stringify({ status: selectedStatus }) 
       });
+
+      // Update admin note if provided (this also sets status to 'responded' on backend,
+      // but we already explicitly set status above)
+      if (replyNote.trim()) {
+        await fetch(`${API}/${selected.id}/reply`, { 
+          method: "PATCH", 
+          headers: headers(), 
+          body: JSON.stringify({ reply: replyNote }) 
+        });
+      }
+
+      // If a note was saved, the backend auto-sets status to 'responded'.
+      // Re-apply the user's chosen status to ensure it takes precedence.
+      if (replyNote.trim() && selectedStatus !== "responded") {
+        await fetch(`${API}/${selected.id}/status`, { 
+          method: "PATCH", 
+          headers: headers(), 
+          body: JSON.stringify({ status: selectedStatus }) 
+        });
+      }
+      
+      setSelected(null);
+      loadData();
+    } finally {
+      setSaving(false);
     }
-    
-    // Update status if changed and not auto-handled by reply
-    if (selectedStatus !== selected.status && !(replyNote !== selected.admin_note && selectedStatus === 'responded')) {
-      await updateStatus(selected.id, selectedStatus);
-    }
-    
-    setSelected(null);
-    loadData();
   };
 
   const handleDelete = async (id: number) => {
@@ -121,23 +140,23 @@ export default function AdminEnquiries() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-white p-4 rounded-xl border shadow-sm">
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-widest">Total</span>
-            <h3 className="text-2xl font-extrabold text-secondary">{stats.total}</h3>
+            <h3 className="text-2xl font-extrabold text-secondary">{parseInt(stats.total) || 0}</h3>
           </div>
           <div className="bg-white p-4 rounded-xl border shadow-sm border-b-4 border-b-red-500">
             <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Open</span>
-            <h3 className="text-2xl font-extrabold text-red-600">{stats.open || 0}</h3>
+            <h3 className="text-2xl font-extrabold text-red-600">{parseInt(stats.open) || 0}</h3>
           </div>
           <div className="bg-white p-4 rounded-xl border shadow-sm border-b-4 border-b-yellow-500">
             <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest">In Progress</span>
-            <h3 className="text-2xl font-extrabold text-yellow-600">{stats.in_progress || 0}</h3>
+            <h3 className="text-2xl font-extrabold text-yellow-600">{parseInt(stats.in_progress) || 0}</h3>
           </div>
           <div className="bg-white p-4 rounded-xl border shadow-sm border-b-4 border-b-green-500">
             <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Resolved</span>
-            <h3 className="text-2xl font-extrabold text-green-600">{stats.resolved || 0}</h3>
+            <h3 className="text-2xl font-extrabold text-green-600">{parseInt(stats.resolved) || 0}</h3>
           </div>
           <div className="bg-white p-4 rounded-xl border shadow-sm border-b-4 border-b-slate-400">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Closed</span>
-            <h3 className="text-2xl font-extrabold text-slate-600">{stats.closed || 0}</h3>
+            <h3 className="text-2xl font-extrabold text-slate-600">{parseInt(stats.closed) || 0}</h3>
           </div>
         </div>
       )}
@@ -165,6 +184,7 @@ export default function AdminEnquiries() {
               <tr className="border-b bg-slate-50 text-[10px] font-black text-foreground/40 uppercase tracking-widest">
                 <th className="py-3 px-4">Sender</th>
                 <th className="py-3 px-4">Subject</th>
+                <th className="py-3 px-4">Message</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4 text-right">Actions</th>
@@ -172,9 +192,9 @@ export default function AdminEnquiries() {
             </thead>
             <tbody className="divide-y divide-border/50">
               {loading ? (
-                <tr><td colSpan={5} className="text-center py-12"><div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full mx-auto"></div></td></tr>
+                <tr><td colSpan={6} className="text-center py-12"><div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full mx-auto"></div></td></tr>
               ) : filteredEnquiries.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-12 text-foreground/50 font-semibold">No enquiries found.</td></tr>
+                <tr><td colSpan={6} className="text-center py-12 text-foreground/50 font-semibold">No enquiries found.</td></tr>
               ) : filteredEnquiries.map((e, i) => (
                 <motion.tr 
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -184,10 +204,14 @@ export default function AdminEnquiries() {
                   <td className="py-3 px-4">
                     <p className="font-bold text-secondary text-xs">{e.name}</p>
                     <p className="text-[10px] text-foreground/50">{e.email}</p>
+                    {e.phone && <p className="text-[10px] text-foreground/40">{e.phone}</p>}
                   </td>
                   <td className="py-3 px-4">
-                    <p className="text-xs font-semibold text-secondary max-w-[250px] truncate">{e.subject}</p>
+                    <p className="text-xs font-semibold text-secondary max-w-[180px] truncate">{e.subject || '—'}</p>
                     {e.admin_note && <p className="text-[9px] text-foreground/40 flex items-center gap-1 mt-0.5"><CheckCircle className="w-3 h-3 text-success" /> Note added</p>}
+                  </td>
+                  <td className="py-3 px-4">
+                    <p className="text-xs text-foreground/60 max-w-[250px] truncate">{e.message || '—'}</p>
                   </td>
                   <td className="py-3 px-4">
                     <select 
@@ -199,7 +223,7 @@ export default function AdminEnquiries() {
                     </select>
                   </td>
                   <td className="py-3 px-4 text-xs text-foreground/50">
-                    {new Date(e.created_at).toLocaleDateString()}
+                    {new Date(e.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex justify-end gap-2">
@@ -245,12 +269,13 @@ export default function AdminEnquiries() {
                   <div>
                     <p className="font-bold text-secondary">{selected.name}</p>
                     <p className="text-xs text-foreground/50">{selected.email}</p>
+                    {selected.phone && <p className="text-xs text-foreground/40 mt-0.5">{selected.phone}</p>}
                   </div>
                   <span className="text-[10px] font-black text-foreground/40 bg-white border px-2 py-1 rounded shadow-sm">
-                    {new Date(selected.created_at).toLocaleString()}
+                    {new Date(selected.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </span>
                 </div>
-                <h4 className="font-bold text-sm text-secondary mb-2 border-b pb-2">Subject: {selected.subject}</h4>
+                <h4 className="font-bold text-sm text-secondary mb-2 border-b pb-2">Subject: {selected.subject || '—'}</h4>
                 <p className="text-sm text-foreground/70 whitespace-pre-wrap leading-relaxed">{selected.message}</p>
               </div>
 
@@ -282,8 +307,9 @@ export default function AdminEnquiries() {
 
             <div className="p-4 border-t bg-slate-50 flex justify-end gap-3">
               <button onClick={() => setSelected(null)} className="px-5 py-2 rounded-lg font-semibold text-sm border bg-white hover:bg-slate-100 transition-colors">Cancel</button>
-              <button onClick={saveReply} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" /> Save Changes
+              <button onClick={saveReply} disabled={saving} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all flex items-center gap-2 disabled:opacity-50">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </motion.div>

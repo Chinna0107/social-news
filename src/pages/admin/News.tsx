@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Pencil, Trash2, Plus, Search, X, Image as ImageIcon, Loader2, Upload } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, X, Image as ImageIcon, Loader2, Upload, Stamp } from "lucide-react";
 
 interface News {
   id: string;
@@ -29,6 +29,37 @@ async function uploadToCloudinary(file: File): Promise<string> {
   return data.url as string;
 }
 
+/** Composite logo watermark onto image using canvas, returns data URL */
+async function applyLogoWatermark(imageUrl: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const logo = new Image();
+      logo.crossOrigin = "anonymous";
+      logo.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
+        // Logo at bottom-right, 20% of image width, slight padding
+        const logoW = img.width * 0.2;
+        const logoH = (logo.height / logo.width) * logoW;
+        const padding = img.width * 0.02;
+        ctx.globalAlpha = 0.85;
+        ctx.drawImage(logo, img.width - logoW - padding, img.height - logoH - padding, logoW, logoH);
+        ctx.globalAlpha = 1;
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
+      };
+      logo.onerror = () => reject(new Error("Logo load failed"));
+      logo.src = "/logo.png";
+    };
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = imageUrl;
+  });
+}
+
 export default function AdminNews() {
   const [news, setNews] = useState<News[]>([]);
   const [total, setTotal] = useState(0);
@@ -39,6 +70,9 @@ export default function AdminNews() {
   const [isAdding, setIsAdding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [applyingWatermark, setApplyingWatermark] = useState(false);
+  const [watermarkApplied, setWatermarkApplied] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -47,7 +81,7 @@ export default function AdminNews() {
       const params = new URLSearchParams({ page: String(page), limit: "20" });
       if (search) params.set("search", search);
       if (filterCategory) params.set("category", filterCategory);
-      
+
       const r = await fetch(`${API}?${params}`, { headers: headers() });
       if (r.ok) {
         const data = await r.json();
@@ -70,6 +104,7 @@ export default function AdminNews() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setWatermarkApplied(false);
     try {
       const url = await uploadToCloudinary(file);
       if (editNews) setEditNews({ ...editNews, image: url });
@@ -77,6 +112,30 @@ export default function AdminNews() {
       alert("Image upload failed.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleApplyWatermark = async () => {
+    if (!editNews?.image) return;
+    setApplyingWatermark(true);
+    try {
+      const watermarkedBase64 = await applyLogoWatermark(editNews.image);
+
+      // Convert base64 to File object
+      const res = await fetch(watermarkedBase64);
+      const blob = await res.blob();
+      const file = new File([blob], "watermarked_image.jpg", { type: "image/jpeg" });
+
+      // Upload to Cloudinary/server
+      const uploadedUrl = await uploadToCloudinary(file);
+
+      setEditNews({ ...editNews, image: uploadedUrl });
+      setWatermarkApplied(true);
+    } catch (e) {
+      alert("Could not apply watermark and upload. Make sure the image is accessible.");
+      console.error(e);
+    } finally {
+      setApplyingWatermark(false);
     }
   };
 
@@ -95,6 +154,7 @@ export default function AdminNews() {
   const saveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editNews) return;
+    setSaving(true);
     try {
       if (isAdding) {
         await fetch(API, { method: "POST", headers: headers(), body: JSON.stringify(editNews) });
@@ -106,6 +166,8 @@ export default function AdminNews() {
       load();
     } catch (error) {
       console.error(error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -205,7 +267,7 @@ export default function AdminNews() {
               <h2 className="font-bold text-secondary text-xl">{isAdding ? "Add News" : "Edit News"}</h2>
               <button type="button" onClick={() => { setEditNews(null); setIsAdding(false); }}><X className="w-5 h-5" /></button>
             </div>
-            
+
             <div>
               <label className="text-xs font-bold text-foreground/50 uppercase tracking-wider block mb-1">Title</label>
               <input type="text" value={editNews.title || ""} onChange={e => setEditNews({ ...editNews, title: e.target.value })} required
@@ -235,7 +297,7 @@ export default function AdminNews() {
                     <img src={editNews.image} alt="preview" className="w-28 h-20 rounded-xl object-cover border shadow-sm" />
                     <button
                       type="button"
-                      onClick={() => setEditNews({ ...editNews, image: "" })}
+                      onClick={() => { setEditNews({ ...editNews, image: "" }); setWatermarkApplied(false); }}
                       className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center shadow"
                     >
                       <X className="w-3 h-3" />
@@ -255,6 +317,31 @@ export default function AdminNews() {
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                 </label>
               </div>
+              {/* Watermark Button */}
+              {editNews.image && (
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleApplyWatermark}
+                    disabled={applyingWatermark || watermarkApplied}
+                    className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg border transition-all ${watermarkApplied
+                        ? "bg-success/10 text-success border-success/30 cursor-default"
+                        : "bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20"
+                      } disabled:opacity-60`}
+                  >
+                    {applyingWatermark ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Applying Logo...</>
+                    ) : watermarkApplied ? (
+                      <><Stamp className="w-3.5 h-3.5" /> Logo Applied ✓</>
+                    ) : (
+                      <><Stamp className="w-3.5 h-3.5" /> Add Logo Watermark (Bottom Right)</>
+                    )}
+                  </button>
+                  {watermarkApplied && (
+                    <span className="text-[10px] text-muted-foreground">Logo placed at bottom-right of image</span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -264,8 +351,9 @@ export default function AdminNews() {
             </div>
 
             <div className="flex gap-3 pt-4 border-t">
-              <button type="submit" disabled={uploading} className="flex-1 bg-secondary text-white py-2 rounded-lg font-semibold text-sm disabled:opacity-60">
-                {isAdding ? "Create News" : "Save Changes"}
+              <button type="submit" disabled={uploading || saving} className="flex-1 bg-secondary text-white py-2 rounded-lg font-semibold text-sm disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? "Saving..." : (isAdding ? "Create News" : "Save Changes")}
               </button>
               <button type="button" onClick={() => { setEditNews(null); setIsAdding(false); }} className="px-6 border rounded-lg text-sm font-semibold">Cancel</button>
             </div>

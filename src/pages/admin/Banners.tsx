@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Image, Loader2 } from "lucide-react";
 
 interface Banner {
   id: number;
@@ -23,6 +23,7 @@ export default function AdminBanners() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [filterPos, setFilterPos] = useState("");
 
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token()}` };
@@ -39,10 +40,15 @@ export default function AdminBanners() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const method = editId ? "PUT" : "POST";
-    const url = editId ? `${API}/${editId}` : API;
-    await fetch(url, { method, headers, body: JSON.stringify(form) });
-    setForm(empty); setEditId(null); setShowForm(false); load();
+    setSaving(true);
+    try {
+      const method = editId ? "PUT" : "POST";
+      const url = editId ? `${API}/${editId}` : API;
+      await fetch(url, { method, headers, body: JSON.stringify(form) });
+      setForm(empty); setEditId(null); setShowForm(false); load();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggle = async (id: number) => {
@@ -87,8 +93,8 @@ export default function AdminBanners() {
             {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           <div className="col-span-full flex gap-3">
-            <button type="submit" className="bg-secondary text-white px-6 py-2 rounded-lg text-sm font-semibold">
-              {editId ? "Update" : "Create"}
+            <button type="submit" disabled={saving} className="bg-secondary text-white px-6 py-2 rounded-lg text-sm font-semibold flex items-center justify-center min-w-[100px] disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : (editId ? "Update" : "Create")}
             </button>
             <button type="button" onClick={() => setShowForm(false)} className="border px-6 py-2 rounded-lg text-sm">Cancel</button>
           </div>

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { mockCategories } from "@/utils/mockData";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 function SubscribeForm() {
   const [email, setEmail] = useState("");
@@ -45,11 +47,42 @@ export function Footer() {
               Your trusted source for local community impact, volunteer campaigns, and the latest breaking news.
             </p>
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive cursor-pointer transition-colors">f</div>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive cursor-pointer transition-colors">x</div>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive cursor-pointer transition-colors">in</div>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive cursor-pointer transition-colors">yt</div>
-            </div>
+  <a
+    href="https://www.facebook.com/share/17cf2y99T8/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive transition-colors"
+  >
+    <FaFacebookF size={16} />
+  </a>
+
+  <a
+    href="https://x.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive transition-colors"
+  >
+    <FaXTwitter size={16} />
+  </a>
+
+  <a
+    href="https://www.instagram.com/socialvoice._?igsh=ZWQ3bXdtY3U1MGp2"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive transition-colors"
+  >
+    <FaInstagram size={16} />
+  </a>
+
+  <a
+    href="https://youtube.com/@voiceoftelugustates?si=Qqy7bWq60Qk2xbAF"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-destructive transition-colors"
+  >
+    <FaYoutube size={16} />
+  </a>
+</div>
           </div>
 
           <div>
@@ -69,6 +102,7 @@ export function Footer() {
               <li><Link to="/campaigns" className="hover:text-destructive transition-colors">Campaigns</Link></li>
               <li><Link to="/marketplace" className="hover:text-destructive transition-colors">Marketplace</Link></li>
               <li><Link to="/donations" className="hover:text-destructive transition-colors">Donate</Link></li>
+              <li><Link to="/enquiry" className="hover:text-destructive transition-colors">Contact Us</Link></li>
               <li><Link to="/login" className="hover:text-destructive transition-colors font-bold text-white">User Login</Link></li>
               <li><Link to="/register" className="hover:text-destructive transition-colors">Register</Link></li>
             </ul>

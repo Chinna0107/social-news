@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Plus, Pencil, Trash2, X, CheckCircle2, HelpCircle, GraduationCap, Clock } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, X, CheckCircle2, HelpCircle, GraduationCap, Clock, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/quizzes";
@@ -12,6 +12,7 @@ export default function AdminQuizzes() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState<any>(null);
 
@@ -63,6 +64,7 @@ export default function AdminQuizzes() {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       const method = editingQuiz ? "PUT" : "POST";
       const url = editingQuiz ? `${API}/${editingQuiz.id}` : API;
@@ -72,7 +74,7 @@ export default function AdminQuizzes() {
       });
       if (res.ok) { setModalOpen(false); loadQuizzes(); }
       else alert("Failed to save quiz");
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error(err); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: number) => {
@@ -254,7 +256,10 @@ export default function AdminQuizzes() {
 
             <div className="p-4 border-t bg-slate-50 flex justify-end gap-3">
               <button onClick={() => setModalOpen(false)} className="px-5 py-2 rounded-lg font-semibold text-sm border bg-white hover:bg-slate-100 transition-colors">Cancel</button>
-              <button onClick={handleSave} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all">Save Quiz</button>
+              <button onClick={handleSave} disabled={saving} className="px-5 py-2 rounded-lg font-semibold text-sm bg-secondary text-white hover:bg-secondary/90 shadow-md transition-all flex items-center gap-2 disabled:opacity-50">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? "Saving..." : "Save Quiz"}
+              </button>
             </div>
           </motion.div>
         </div>

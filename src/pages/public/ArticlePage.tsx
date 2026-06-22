@@ -72,11 +72,11 @@ export default function ArticlePage() {
           <Link to={`/category/${article.category}`} className="text-xs font-bold text-destructive uppercase tracking-widest hover:underline mb-2 inline-block">
             {article.category} NEWS
           </Link>
-          <h1 className="text-3xl md:text-5xl font-black text-secondary leading-tight mb-4">
+          <h1 className="news-heading text-3xl md:text-5xl text-secondary leading-tight mb-4">
             {article.title}
           </h1>
           {article.excerpt && (
-            <p className="text-lg text-foreground/70 font-medium leading-relaxed mb-6">
+            <p className="news-subheading text-lg text-foreground/70 leading-relaxed mb-6">
               {article.excerpt}
             </p>
           )}
@@ -92,7 +92,20 @@ export default function ArticlePage() {
                 <Clock className="w-4 h-4" /> {article.date}
               </div>
             </div>
-            <button className="flex items-center gap-2 text-sm font-bold text-secondary hover:text-primary transition-colors bg-slate-100 px-4 py-2 rounded-full">
+            <button 
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: article.title,
+                    url: window.location.href,
+                  }).catch(console.error);
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Link copied to clipboard!");
+                }
+              }}
+              className="flex items-center gap-2 text-sm font-bold text-secondary hover:text-primary transition-colors bg-slate-100 px-4 py-2 rounded-full"
+            >
               <Share2 className="w-4 h-4" /> Share
             </button>
           </div>
@@ -100,11 +113,15 @@ export default function ArticlePage() {
 
         {article.image && (
           <div 
-            className="w-full aspect-video rounded-xl overflow-hidden mb-8 shadow-md cursor-pointer group relative"
+            className="w-full rounded-xl overflow-hidden mb-8 shadow-md cursor-pointer group relative bg-slate-50 flex items-center justify-center border border-border/50"
             onClick={() => setIsImageOpen(true)}
           >
-            <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+            <img 
+              src={article.image} 
+              alt={article.title} 
+              className="w-full h-auto max-h-[500px] object-contain group-hover:scale-[1.01] transition-transform duration-500" 
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
                <span className="opacity-0 group-hover:opacity-100 bg-black/50 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm transition-opacity duration-300">
                   Click to Expand
                </span>
@@ -112,7 +129,7 @@ export default function ArticlePage() {
           </div>
         )}
 
-        <div className="prose prose-lg max-w-none text-foreground/80 leading-loose">
+        <div className="news-body-text prose prose-lg max-w-none text-foreground/80 leading-loose">
           <p className="first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-1 first-letter:float-left">
             {article.content}
           </p>
