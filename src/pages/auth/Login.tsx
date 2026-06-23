@@ -92,14 +92,14 @@ export default function Login() {
     }
   };
 
-  const fillDemoCredentials = () => {
-    const defaultCreds = getDefaultCredentials(formData.loginType);
-    setFormData({
-      ...formData,
-      email: defaultCreds.email,
-      password: defaultCreds.password
-    });
-  };
+  // const fillDemoCredentials = () => {
+  //   const defaultCreds = getDefaultCredentials(formData.loginType);
+  //   setFormData({
+  //     ...formData,
+  //     email: defaultCreds.email,
+  //     password: defaultCreds.password
+  //   });
+  // };
 
   return (
     <div className="min-h-screen flex w-full font-sans">
