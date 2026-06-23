@@ -104,7 +104,7 @@ export default function PublicEnquiryPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Phone</p>
-                    <p className="text-sm font-semibold">+91 9876 543 210</p>
+                    <p className="text-sm font-semibold">+91 9247896607</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -170,7 +170,7 @@ export default function PublicEnquiryPage() {
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 9247896607"
                     className="w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-secondary/20 transition-shadow"
                   />
                 </div>

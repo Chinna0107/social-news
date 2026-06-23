@@ -14,6 +14,7 @@ import PublicCampaignsPage from "@/pages/public/CampaignsPage";
 import PrivacyPolicy from "@/pages/public/PrivacyPolicy";
 import TermsOfService from "@/pages/public/TermsOfService";
 import RefundPolicy from "@/pages/public/RefundPolicy";
+import ShippingPolicy from "@/pages/public/ShippingPolicy";
 import PublicEnquiryPage from "@/pages/public/EnquiryPage";
 
 // Auth Pages
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
       { path: "privacy", element: <PrivacyPolicy /> },
       { path: "terms", element: <TermsOfService /> },
       { path: "refund-policy", element: <RefundPolicy /> },
+      { path: "shipping-policy", element: <ShippingPolicy /> },
       { path: "enquiry", element: <PublicEnquiryPage /> },
       { path: "*", element: <ComingSoon /> },
     ],

@@ -226,7 +226,7 @@ export default function Login() {
           )}
 
           {/* Demo Credentials Helper */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          {/* <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider">Demo Credentials</p>
@@ -244,7 +244,7 @@ export default function Login() {
                 Use Demo
               </button>
             </div>
-          </div>
+          </div> */}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -306,16 +306,16 @@ export default function Login() {
             </motion.button>
           </form>
 
-          <div className="relative my-10">
+          {/* <div className="relative my-10">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="bg-slate-50 px-4 font-bold text-foreground/50 uppercase tracking-widest backdrop-blur-sm">Or continue with</span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4">
             <motion.button whileHover={{ y: -2 }} className="flex items-center justify-center gap-2 bg-white border border-border py-2.5 rounded-lg text-sm font-semibold text-secondary hover:bg-slate-50 transition-all shadow-sm hover:shadow-md">
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
               Google
@@ -324,7 +324,7 @@ export default function Login() {
               <svg className="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
               SSO
             </motion.button>
-          </div>
+          </div> */}
 
           <div className="mt-auto pt-12 text-center">
             <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-3">Secured by Enterprise Protocol 4.0</p>

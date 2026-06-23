@@ -88,9 +88,10 @@ export default function RefundPolicy() {
         </section>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-border flex gap-6 text-sm font-semibold">
+      <div className="mt-12 pt-6 border-t border-border flex flex-wrap gap-6 text-sm font-semibold">
         <Link to="/privacy" className="text-secondary hover:text-destructive transition-colors">Privacy Policy →</Link>
         <Link to="/terms" className="text-secondary hover:text-destructive transition-colors">Terms of Service →</Link>
+        <Link to="/shipping-policy" className="text-secondary hover:text-destructive transition-colors">Shipping Policy →</Link>
       </div>
     </div>
   );

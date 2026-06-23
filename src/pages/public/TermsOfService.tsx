@@ -126,9 +126,10 @@ export default function TermsOfService() {
         </section>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-border flex gap-6 text-sm font-semibold">
+      <div className="mt-12 pt-6 border-t border-border flex flex-wrap gap-6 text-sm font-semibold">
         <Link to="/privacy" className="text-secondary hover:text-destructive transition-colors">Privacy Policy →</Link>
         <Link to="/refund-policy" className="text-secondary hover:text-destructive transition-colors">Refund Policy →</Link>
+        <Link to="/shipping-policy" className="text-secondary hover:text-destructive transition-colors">Shipping Policy →</Link>
       </div>
     </div>
   );

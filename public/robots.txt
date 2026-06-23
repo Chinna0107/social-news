@@ -1,0 +1,24 @@
+# robots.txt for Social Voice News (Social News)
+# Production URL: https://socialvoicenews.com
+
+User-agent: *
+Allow: /
+Allow: /events
+Allow: /campaigns
+Allow: /marketplace
+Allow: /donations
+Allow: /enquiry
+Allow: /privacy
+Allow: /terms
+Allow: /refund-policy
+Allow: /login
+Allow: /register
+
+# Block private / dashboard areas
+Disallow: /admin/
+Disallow: /student/
+Disallow: /user/
+Disallow: /checkout
+
+# Sitemap location
+Sitemap: https://socialvoicenews.com/sitemap.xml

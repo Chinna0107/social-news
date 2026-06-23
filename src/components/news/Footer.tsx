@@ -115,11 +115,16 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-white/50">
-          <p>© {new Date().getFullYear()} Social News Network. All rights reserved.</p>
-          <div className="flex gap-4 mt-4 md:mt-0">
-            <Link to="/terms" className="hover:text-white">Terms of Use</Link>
+        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-white/50 gap-4">
+          <div>
+            <p>© {new Date().getFullYear()} Social Voice News. All rights reserved.</p>
+            <p className="mt-1">Hyderabad, Telangana, India | support@socialvoicenews.com</p>
+          </div>
+          <div className="flex flex-wrap gap-4 mt-2 md:mt-0">
+            <Link to="/terms" className="hover:text-white">Terms of Service</Link>
             <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link to="/refund-policy" className="hover:text-white">Refund Policy</Link>
+            <Link to="/shipping-policy" className="hover:text-white">Shipping Policy</Link>
           </div>
         </div>
       </div>
