@@ -29,22 +29,8 @@ export default function Login() {
     { type: 'admin' as LoginType, label: 'Admin', icon: Shield, description: 'Admin panel access' },
   ];
 
-  const getDefaultCredentials = (type: LoginType) => {
-    switch (type) {
-      case 'admin':   return { email: 'admin@socialnews.org', password: 'Admin@social123' };
-      case 'student': return { email: 'student@test.com',      password: 'Student123' };
-      case 'user':    return { email: 'user@socialnews.com',    password: 'User@123' };
-    }
-  };
-
   const handleLoginTypeChange = (type: LoginType) => {
-    const defaultCreds = getDefaultCredentials(type);
-    setFormData({
-      ...formData,
-      loginType: type,
-      email: defaultCreds.email,
-      password: defaultCreds.password
-    });
+    setFormData({ ...formData, loginType: type, email: '', password: '' });
     setError('');
   };
 
