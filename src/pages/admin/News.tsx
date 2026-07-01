@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Pencil, Trash2, Plus, Search, X, Image as ImageIcon, Loader2, Upload, Stamp } from "lucide-react";
+import { BREAKING_NEWS_STORAGE_KEY, mockBreakingNews } from "@/utils/mockData";
 
 interface News {
   id: string;
@@ -10,7 +11,15 @@ interface News {
   content?: string;
 }
 
-const CATEGORIES = ["ap", "ts", "national", "international", "cinema", "sports", "business"];
+const CATEGORIES = [
+  { value: "science", label: "Science" },
+  { value: "ts", label: "Telangana" },
+  { value: "national", label: "National" },
+  { value: "international", label: "International" },
+  { value: "cinema", label: "Cinema" },
+  { value: "sports", label: "Sports" },
+  { value: "business", label: "Business" },
+];
 const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/admin/news";
 const UPLOAD_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + "/media/upload";
 const token = () => localStorage.getItem("token");
@@ -73,6 +82,8 @@ export default function AdminNews() {
   const [saving, setSaving] = useState(false);
   const [applyingWatermark, setApplyingWatermark] = useState(false);
   const [watermarkApplied, setWatermarkApplied] = useState(false);
+  const [breakingNews, setBreakingNews] = useState<string[]>(mockBreakingNews);
+  const [breakingDraft, setBreakingDraft] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -99,6 +110,37 @@ export default function AdminNews() {
   };
 
   useEffect(() => { load(); }, [page, filterCategory]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(BREAKING_NEWS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setBreakingNews(parsed.filter(item => typeof item === "string" && item.trim()));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load breaking news", error);
+    }
+  }, []);
+
+  const persistBreakingNews = (items: string[]) => {
+    setBreakingNews(items);
+    localStorage.setItem(BREAKING_NEWS_STORAGE_KEY, JSON.stringify(items));
+  };
+
+  const addBreakingNews = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nextItem = breakingDraft.trim();
+    if (!nextItem) return;
+    persistBreakingNews([nextItem, ...breakingNews]);
+    setBreakingDraft("");
+  };
+
+  const removeBreakingNews = (index: number) => {
+    persistBreakingNews(breakingNews.filter((_, itemIndex) => itemIndex !== index));
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -174,7 +216,7 @@ export default function AdminNews() {
   const openAdd = () => {
     setEditNews({
       title: "",
-      category: CATEGORIES[0],
+      category: CATEGORIES[0].value,
       image: "",
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       content: ""
@@ -206,8 +248,40 @@ export default function AdminNews() {
         <select value={filterCategory} onChange={e => { setFilterCategory(e.target.value); setPage(1); }}
           className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 capitalize">
           <option value="">All Categories</option>
-          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
+      </div>
+
+      <div className="bg-white rounded-xl border shadow-sm p-5 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-secondary">Breaking News Ticker</h2>
+            <p className="text-xs text-foreground/50 font-semibold">Add headlines here to show them in the public breaking news bar.</p>
+          </div>
+          <form onSubmit={addBreakingNews} className="flex gap-2 w-full md:w-auto">
+            <input
+              value={breakingDraft}
+              onChange={e => setBreakingDraft(e.target.value)}
+              placeholder="Add breaking news headline..."
+              className="flex-1 md:w-80 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20"
+            />
+            <button type="submit" className="bg-destructive text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          </form>
+        </div>
+        <div className="divide-y divide-border/50 border rounded-lg overflow-hidden">
+          {breakingNews.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-foreground/40">No breaking headlines added.</div>
+          ) : breakingNews.map((item, index) => (
+            <div key={`${item}-${index}`} className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50/60">
+              <p className="text-sm font-medium text-secondary">{item}</p>
+              <button onClick={() => removeBreakingNews(index)} className="p-1.5 border rounded hover:bg-red-50 text-red-500 shrink-0">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
@@ -237,7 +311,7 @@ export default function AdminNews() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3"><span className="bg-slate-100 text-secondary text-[10px] font-bold px-2 py-0.5 rounded capitalize">{n.category}</span></td>
+                  <td className="px-4 py-3"><span className="bg-slate-100 text-secondary text-[10px] font-bold px-2 py-0.5 rounded capitalize">{CATEGORIES.find(c => c.value === n.category)?.label || n.category}</span></td>
                   <td className="px-4 py-3 text-xs text-foreground/50">{n.date}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
@@ -279,7 +353,7 @@ export default function AdminNews() {
                 <label className="text-xs font-bold text-foreground/50 uppercase tracking-wider block mb-1">Category</label>
                 <select value={editNews.category || ""} onChange={e => setEditNews({ ...editNews, category: e.target.value })} required
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 capitalize">
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div>

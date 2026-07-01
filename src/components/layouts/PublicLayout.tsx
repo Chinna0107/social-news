@@ -2,6 +2,7 @@ import { Outlet, ScrollRestoration } from "react-router-dom";
 import { Header } from "../news/Header";
 import { Footer } from "../news/Footer";
 import { BreakingNewsTicker } from "../news/BreakingNewsTicker";
+import { ProgramPopup } from "../news/ProgramPopup";
 
 export function PublicLayout() {
   return (
@@ -16,6 +17,7 @@ export function PublicLayout() {
       </main>
 
       <Footer />
+      <ProgramPopup />
       <ScrollRestoration />
     </div>
   );

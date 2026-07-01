@@ -11,6 +11,42 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [isImageOpen, setIsImageOpen] = useState(false);
 
+  const handleShare = async () => {
+    const shareText = `${article.title}${article.image ? `\n${article.image}` : ""}`;
+    const shareData = {
+      title: article.title,
+      text: shareText,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        if (article.image && navigator.canShare) {
+          try {
+            const imageRes = await fetch(article.image);
+            const imageBlob = await imageRes.blob();
+            const extension = imageBlob.type.split("/")[1] || "jpg";
+            const file = new File([imageBlob], `social-voice-news.${extension}`, { type: imageBlob.type || "image/jpeg" });
+            const fileShareData = { ...shareData, files: [file] };
+            if (navigator.canShare(fileShareData)) {
+              await navigator.share(fileShareData);
+              return;
+            }
+          } catch (error) {
+            console.warn("Image share unavailable, falling back to link share", error);
+          }
+        }
+        await navigator.share(shareData);
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${article.title}\n${window.location.href}${article.image ? `\n${article.image}` : ""}`);
+      alert("Headline, link, and image URL copied to clipboard!");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true);
@@ -93,17 +129,7 @@ export default function ArticlePage() {
               </div>
             </div>
             <button 
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title: article.title,
-                    url: window.location.href,
-                  }).catch(console.error);
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert("Link copied to clipboard!");
-                }
-              }}
+              onClick={handleShare}
               className="flex items-center gap-2 text-sm font-bold text-secondary hover:text-primary transition-colors bg-slate-100 px-4 py-2 rounded-full"
             >
               <Share2 className="w-4 h-4" /> Share
@@ -183,4 +209,3 @@ export default function ArticlePage() {
     </div>
   );
 }
-

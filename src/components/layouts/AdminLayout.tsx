@@ -17,7 +17,8 @@ import {
   SendHorizonal,
   Package,
   Newspaper,
-  Camera
+  Camera,
+  Tv2
 } from "lucide-react";
 
 export function AdminLayout() {
@@ -37,6 +38,7 @@ export function AdminLayout() {
     { icon: MessageSquare, label: "Enquiries", path: "/admin/enquiries" },
     { icon: Newspaper, label: "News Management", path: "/admin/news" },
     { icon: Camera, label: "Selfie Management", path: "/admin/selfie-management" },
+    { icon: Tv2, label: "Advertisements", path: "/admin/advertisements" },
     // { icon: Settings, label: "CMS", path: "/admin/content" },
   ];
 

@@ -243,7 +243,7 @@ export const mockDonations = [
 
 export const mockCategories = [
   { id: "home", label: "Home", path: "/" },
-  { id: "ap", label: "Andhra Pradesh", path: "/category/ap" },
+  { id: "science", label: "Science", path: "/category/science" },
   { id: "ts", label: "Telangana", path: "/category/ts" },
   { id: "national", label: "National", path: "/category/national" },
   { id: "international", label: "International", path: "/category/international" },
@@ -252,8 +252,116 @@ export const mockCategories = [
   { id: "business", label: "Business", path: "/category/business" },
 ];
 
+export const advertisementCategories = [
+  "Services",
+  "Real Estate",
+  "Hotels",
+  "Hospitals",
+  "Function హాల్స్",
+  "Packers & Movers",
+  "Travelers",
+  "Job Notifications",
+  "Shopping",
+  "Epaper",
+];
+
+export const mockAdvertisements = [
+  {
+    id: "ADV-001",
+    title: "Sri Sai Home Services",
+    category: "Services",
+    description: "Electrician, plumbing, AC repair, and home maintenance bookings across Hyderabad.",
+    location: "Hyderabad",
+    phone: "+91 98765 43210",
+    image: "https://picsum.photos/seed/services-ad/800/600",
+  },
+  {
+    id: "ADV-002",
+    title: "Prime City Real Estate",
+    category: "Real Estate",
+    description: "Verified plots, apartments, rentals, and commercial properties with site visits.",
+    location: "Vijayawada",
+    phone: "+91 99887 76655",
+    image: "https://picsum.photos/seed/real-estate-ad/800/600",
+  },
+  {
+    id: "ADV-003",
+    title: "Royal Grand Hotels",
+    category: "Hotels",
+    description: "Rooms, banquet dining, and family packages near major city landmarks.",
+    location: "Visakhapatnam",
+    phone: "+91 91234 56789",
+    image: "https://picsum.photos/seed/hotel-ad/800/600",
+  },
+  {
+    id: "ADV-004",
+    title: "Care Plus Hospitals",
+    category: "Hospitals",
+    description: "24/7 emergency care, diagnostics, specialist appointments, and health packages.",
+    location: "Secunderabad",
+    phone: "+91 90000 11223",
+    image: "https://picsum.photos/seed/hospital-ad/800/600",
+  },
+  {
+    id: "ADV-005",
+    title: "Srinivasa Function హాల్స్",
+    category: "Function హాల్స్",
+    description: "Wedding, reception, birthday, and corporate event halls with catering support.",
+    location: "Guntur",
+    phone: "+91 94444 55667",
+    image: "https://picsum.photos/seed/function-hall-ad/800/600",
+  },
+  {
+    id: "ADV-006",
+    title: "Speed Packers & Movers",
+    category: "Packers & Movers",
+    description: "Local and interstate relocation, packing, loading, transport, and storage.",
+    location: "Telangana & AP",
+    phone: "+91 95555 12121",
+    image: "https://picsum.photos/seed/packers-ad/800/600",
+  },
+  {
+    id: "ADV-007",
+    title: "Deccan Travelers",
+    category: "Travelers",
+    description: "Car rentals, temple tours, airport pickup, and custom travel packages.",
+    location: "Telugu States",
+    phone: "+91 96666 34343",
+    image: "https://picsum.photos/seed/travel-ad/800/600",
+  },
+  {
+    id: "ADV-008",
+    title: "Weekly Job Notifications",
+    category: "Job Notifications",
+    description: "Government, private, fresher, and walk-in job alerts updated every week.",
+    location: "India",
+    phone: "+91 97777 45454",
+    image: "https://picsum.photos/seed/jobs-ad/800/600",
+  },
+  {
+    id: "ADV-009",
+    title: "Festival Shopping Offers",
+    category: "Shopping",
+    description: "Fashion, electronics, home goods, and local store offers in one place.",
+    location: "Online & Local",
+    phone: "+91 98888 56565",
+    image: "https://picsum.photos/seed/shopping-ad/800/600",
+  },
+  {
+    id: "ADV-010",
+    title: "Social Voice Epaper",
+    category: "Epaper",
+    description: "Read daily digital editions, archives, district pages, and special supplements.",
+    location: "Digital",
+    phone: "+91 99999 67676",
+    image: "https://picsum.photos/seed/epaper-ad/800/600",
+  },
+];
+
+export const BREAKING_NEWS_STORAGE_KEY = "social_voice_breaking_news";
+
 export const mockBreakingNews = [
-  "Heavy rains alert issued for coastal districts in Andhra Pradesh.",
+  "New satellite data helps scientists track coastal weather patterns.",
   "Sensex drops 500 points amid global market sell-off.",
   "New updates on the highly anticipated pan-India movie release date.",
   "Tech giant announces setting up a new campus in Hyderabad."
@@ -265,7 +373,7 @@ export const mockArticles = [
     title: "Major Investment Announced for New IT Hub in Visakhapatnam",
     excerpt: "The state government today announced a massive investment package to develop Visakhapatnam as a premier IT destination, promising thousands of new jobs.",
     content: "Full details of the IT hub investment in Visakhapatnam...",
-    category: "ap",
+    category: "science",
     image: "https://picsum.photos/seed/img8/800/600",
     date: "2 hours ago",
     author: "Special Correspondent"
@@ -334,15 +442,15 @@ export const mockArticles = [
     id: "ART-008",
     title: "Tirupati Brahmotsavam Preparations in Full Swing",
     excerpt: "The TTD has commenced massive arrangements for the upcoming annual Brahmotsavam, expecting millions of devotees.",
-    content: "Devotional news from AP...",
-    category: "ap",
+    content: "Devotional news from science...",
+    category: "science",
     image: "https://picsum.photos/seed/tirupati/800/600",
     date: "10 hours ago",
     author: "Local Reporter"
   },
-  { id: "ART-AP1", title: "Amaravati Capital Works to Resume Swiftly", excerpt: "Government sanctions funds to restart capital development projects.", content: "Full content...", category: "ap", image: "https://picsum.photos/seed/img15/800/600", date: "11 hours ago", author: "Staff" },
-  { id: "ART-AP2", title: "Polavaram Project Reaches Crucial Milestone", excerpt: "The spillway concrete work completes, pushing the project closer to realization.", content: "Full content...", category: "ap", image: "https://picsum.photos/seed/img16/800/600", date: "12 hours ago", author: "Staff" },
-  { id: "ART-AP3", title: "New Coastal Corridor Proposed for State", excerpt: "A massive industrial corridor along the coast to boost employment.", content: "Full content...", category: "ap", image: "https://picsum.photos/seed/img17/800/600", date: "13 hours ago", author: "Staff" },
+  { id: "ART-AP1", title: "New Lab Maps How Plants Respond to Heat Stress", excerpt: "Researchers publish findings that could help crops withstand hotter summers.", content: "Full content...", category: "science", image: "https://picsum.photos/seed/img15/800/600", date: "11 hours ago", author: "Staff" },
+  { id: "ART-AP2", title: "Students Build Low-Cost Air Quality Monitor", excerpt: "The device uses affordable sensors to track pollution at street level.", content: "Full content...", category: "science", image: "https://picsum.photos/seed/img16/800/600", date: "12 hours ago", author: "Staff" },
+  { id: "ART-AP3", title: "Astronomy Team Spots Rare Meteor Shower Pattern", excerpt: "Skywatchers are expected to get clear views of the event this weekend.", content: "Full content...", category: "science", image: "https://picsum.photos/seed/img17/800/600", date: "13 hours ago", author: "Staff" },
 
   { id: "ART-TS1", title: "Hyderabad IT Exports Cross New Record", excerpt: "Telangana reports a 20% surge in IT exports this financial year.", content: "Full content...", category: "ts", image: "https://picsum.photos/seed/img18/800/600", date: "2 hours ago", author: "Staff" },
   { id: "ART-TS2", title: "Musam River Rejuvenation Project Announced", excerpt: "State government to allocate 500 crores to clean and revitalize the river.", content: "Full content...", category: "ts", image: "https://picsum.photos/seed/musi/800/600", date: "3 hours ago", author: "Staff" },

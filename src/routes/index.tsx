@@ -16,6 +16,8 @@ import TermsOfService from "@/pages/public/TermsOfService";
 import RefundPolicy from "@/pages/public/RefundPolicy";
 import ShippingPolicy from "@/pages/public/ShippingPolicy";
 import PublicEnquiryPage from "@/pages/public/EnquiryPage";
+import AboutUs from "@/pages/public/AboutUs";
+import AdvertisementPage from "@/pages/public/AdvertisementPage";
 
 // Auth Pages
 import Login from "@/pages/auth/Login";
@@ -41,6 +43,7 @@ import AdminAdsense from "@/pages/admin/Adsense";
 import AdminReports from "@/pages/admin/Reports";
 import AdminNews from "@/pages/admin/News";
 import AdminSelfieManagement from "@/pages/admin/SelfieManagement";
+import AdminAdvertisements from "@/pages/admin/Advertisements";
 
 // Student Pages
 import StudentDashboard from "@/pages/student/Dashboard";
@@ -86,6 +89,8 @@ const router = createBrowserRouter([
       { path: "refund-policy", element: <RefundPolicy /> },
       { path: "shipping-policy", element: <ShippingPolicy /> },
       { path: "enquiry", element: <PublicEnquiryPage /> },
+      { path: "about", element: <AboutUs /> },
+      { path: "advertisement", element: <AdvertisementPage /> },
       { path: "*", element: <ComingSoon /> },
     ],
   },
@@ -173,6 +178,7 @@ const router = createBrowserRouter([
       { path: "reports", element: <AdminReports /> },
       { path: "news", element: <AdminNews /> },
       { path: "selfie-management", element: <AdminSelfieManagement /> },
+      { path: "advertisements", element: <AdminAdvertisements /> },
       { path: "*", element: <ComingSoon /> },
     ],
   },

@@ -2,6 +2,15 @@ import { Link, useLocation } from "react-router-dom";
 import { mockCategories } from "@/utils/mockData";
 import { Search, Menu, LogIn } from "lucide-react";
 import { useState } from "react";
+import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
+const socialLinks = [
+  { label: "Facebook", href: "https://www.facebook.com/share/17cf2y99T8/", icon: FaFacebookF },
+  { label: "X", href: "https://x.com", icon: FaXTwitter },
+  { label: "Instagram", href: "https://www.instagram.com/socialvoice._?igsh=ZWQ3bXdtY3U1MGp2", icon: FaInstagram },
+  { label: "YouTube", href: "https://youtube.com/@voiceoftelugustates?si=Qqy7bWq60Qk2xbAF", icon: FaYoutube },
+];
 
 export function Header() {
   const location = useLocation();
@@ -22,18 +31,28 @@ export function Header() {
         <div className="flex gap-4 items-center">
           <Link to="/campaigns" className="hover:text-destructive transition-colors">Campaigns</Link>
           <Link to="/marketplace" className="hover:text-destructive transition-colors">Marketplace</Link>
+          <Link to="/advertisement" className="hover:text-destructive transition-colors">Advertisement</Link>
           <Link to="/donations" className="hover:text-destructive transition-colors">Donate</Link>
           <div className="flex gap-2">
-            <div className="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-destructive cursor-pointer">f</div>
-            <div className="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-destructive cursor-pointer">x</div>
-            <div className="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-destructive cursor-pointer">yt</div>
+            {socialLinks.map(({ label, href, icon: Icon }) => (
+              <a
+                key={label}
+                href={href}
+                aria-label={label}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-destructive transition-colors"
+              >
+                <Icon size={11} />
+              </a>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="bg-white py-4 px-4 flex justify-between items-center max-w-7xl mx-auto">
+      <div className="bg-white py-3 px-4 flex justify-between items-center max-w-7xl mx-auto gap-4">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="SOCIAL NEWS" className="h-8 md:h-12 w-auto max-w-[200px] md:max-w-xs object-contain" />
+          <img src="/logo.png" alt="SOCIAL NEWS" className="h-12 md:h-20 w-auto max-w-[240px] md:max-w-sm object-contain" />
         </Link>
         <div className="hidden md:flex items-center gap-6">
           <div className="relative">
@@ -86,6 +105,13 @@ export function Header() {
              </div>
              <Link to="/login" className="flex justify-center items-center gap-2 bg-destructive text-white px-5 py-2 rounded font-bold text-sm hover:bg-red-700 transition-colors">
                <LogIn className="w-4 h-4" /> User Login
+             </Link>
+             <Link
+               to="/advertisement"
+               onClick={() => setMobileMenuOpen(false)}
+               className="flex justify-center items-center gap-2 border border-border text-secondary px-5 py-2 rounded font-bold text-sm hover:bg-slate-50 transition-colors"
+             >
+               Advertisement
              </Link>
           </div>
           <nav className="flex flex-col">

@@ -37,7 +37,7 @@ export default function Home() {
   const topStory = allNews.length > 0 ? allNews[0] : null;
   const latestNews = allNews.slice(1, 5);
   
-  const apNews = getCat("ap").slice(0, 4);
+  const scienceNews = getCat("science").slice(0, 4);
   const tsNews = getCat("ts").slice(0, 4);
   const nationalNews = getCat("national").slice(0, 4);
   const internationalNews = getCat("international").slice(0, 4);
@@ -52,8 +52,8 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-10">
       
-      {/* Top Story & Latest News */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Top Story, Latest News & Video */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-2">
           {topStory && (
             <NewsCard 
@@ -85,21 +85,38 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <div className="bg-secondary text-white border border-secondary p-4 rounded-lg flex flex-col">
+          <div className="flex justify-between items-center mb-4 border-b-2 border-white/20 pb-2">
+            <h2 className="text-xl font-black text-white">YOUTUBE VIDEO</h2>
+            <PlayCircle className="w-5 h-5 text-destructive" />
+          </div>
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-slate-950 shadow-md mb-4">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0"
+              title="Social Voice News YouTube Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <h3 className="font-bold text-sm mb-1">Latest video update</h3>
+          <p className="text-xs text-white/70 leading-relaxed">Watch current news highlights, public programs, and community updates.</p>
+        </div>
       </div>
 
       <hr className="border-border" />
 
-      {/* AP & TS Row */}
+      {/* Science & TS Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <section>
           <div className="flex justify-between items-end mb-4 border-b-2 border-primary pb-2">
-            <h2 className="text-xl md:text-2xl font-black text-primary">ANDHRA PRADESH</h2>
-            <Link to="/category/ap" className="text-sm font-bold text-destructive flex items-center hover:underline">
+            <h2 className="text-xl md:text-2xl font-black text-primary">SCIENCE</h2>
+            <Link to="/category/science" className="text-sm font-bold text-destructive flex items-center hover:underline">
               View All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {apNews.map(article => (
+            {scienceNews.map(article => (
               <NewsCard key={article.id} {...article} />
             ))}
           </div>
@@ -206,27 +223,6 @@ export default function Home() {
         </section>
       </div>
 
-      <hr className="border-border" />
-
-      {/* Featured Video Section */}
-      <section className="bg-white p-6 md:p-10 rounded-2xl border shadow-sm">
-        <div className="flex justify-between items-end mb-8 border-b-2 border-primary pb-2">
-          <div className="flex items-center gap-3">
-            <PlayCircle className="w-8 h-8 text-destructive" />
-            <h2 className="text-2xl md:text-3xl font-black text-primary">FEATURED VIDEO</h2>
-          </div>
-        </div>
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900 shadow-xl group">
-          <iframe 
-            className="w-full h-full"
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0" 
-            title="Featured Video" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowFullScreen
-          ></iframe>
-        </div>
-      </section>
-      
       <ContactSection />
 
     </div>

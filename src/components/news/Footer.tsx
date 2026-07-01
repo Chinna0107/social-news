@@ -101,7 +101,9 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-white/70">
               <li><Link to="/campaigns" className="hover:text-destructive transition-colors">Campaigns</Link></li>
               <li><Link to="/marketplace" className="hover:text-destructive transition-colors">Marketplace</Link></li>
+              <li><Link to="/advertisement" className="hover:text-destructive transition-colors">Advertisement</Link></li>
               <li><Link to="/donations" className="hover:text-destructive transition-colors">Donate</Link></li>
+              <li><Link to="/about" className="hover:text-destructive transition-colors">About Us</Link></li>
               <li><Link to="/enquiry" className="hover:text-destructive transition-colors">Contact Us</Link></li>
               <li><Link to="/login" className="hover:text-destructive transition-colors font-bold text-white">User Login</Link></li>
               <li><Link to="/register" className="hover:text-destructive transition-colors">Register</Link></li>
